@@ -52,7 +52,7 @@ async fn mensatoshi_handler() -> String {
     let mut cache = CACHE.lock().await;
 
     let satoshi_per_eur = match *cache {
-        Some(price_cache) if price_cache.time.elapsed() < Duration::from_secs(300) => {
+        Some(price_cache) if price_cache.time.elapsed() < Duration::from_secs(10) => {
             price_cache.price
         }
         _ => {
