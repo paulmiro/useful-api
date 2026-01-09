@@ -32,12 +32,12 @@ async fn main() {
         .route("/", get(hello_handler))
         .route("/mensatoshi", get(mensatoshi_handler));
 
-    // run it with hyper on localhost:3000
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:19190")
-        .await
-        .unwrap();
+    let port = std::env::var("USEFUL_API_PORT").unwrap_or_else(|_| "3000".to_string());
+    let addr = format!("0.0.0.0:{}", port);
 
-    println!("Server running on http://0.0.0.0:19190");
+    let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
+
+    println!("Server running on http://{}", addr);
 
     axum::serve(listener, app).await.unwrap();
 }
