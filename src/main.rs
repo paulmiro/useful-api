@@ -25,5 +25,6 @@ fn rocket() -> _ {
 
     rocket::custom(config)
         .manage(Mutex::new(None::<SatoshiPriceCache>))
+        .manage(reqwest::Client::new())
         .mount("/", routes![hello, mensatoshi, congressbeer, shark])
 }

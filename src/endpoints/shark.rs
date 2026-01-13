@@ -1,5 +1,6 @@
 use crate::endpoints::{ApiError, ApiResponse};
 use rocket::serde::{Deserialize, Serialize};
+use rocket::State;
 
 #[derive(Serialize)]
 pub struct SharkData {
@@ -52,9 +53,8 @@ struct ClassUnitKey {
 }
 
 #[get("/shark?<format>")]
-pub async fn shark(format: Option<String>) -> ApiResponse<SharkData> {
+pub async fn shark(format: Option<String>, client: &State<reqwest::Client>) -> ApiResponse<SharkData> {
     let url = "https://api.salesitem.ingka.com/availabilities/ru/de?itemNos=30373588,20540663&expand=StoresList";
-    let client = reqwest::Client::new();
 
     let response = match client
         .get(url)
