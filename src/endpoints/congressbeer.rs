@@ -4,7 +4,6 @@ pub fn congressbeer(satoshi: f64) -> String {
     let congressbeers = (satoshi / CONGRESSBEER_SATOSHI).floor() as i64;
     format!(
         "{} Satoshi entspricht {} Congressbeers.",
-        satoshi,
-        congressbeers
+        satoshi, congressbeers
     )
 }
