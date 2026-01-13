@@ -37,15 +37,27 @@
           );
         in
         {
-          devShells.default = craneLib.devShell {
-            packages =
-              (with pkgs; [
-                gemini-cli
-              ])
-              ++ commonArgs.nativeBuildInputs
-              ++ commonArgs.buildInputs;
-            inherit (commonArgs) PKG_CONFIG_PATH;
-            RUST_SRC_PATH = "${pkgs.rustPlatform.rustLibSrc}";
+          devShells = {
+            default = craneLib.devShell {
+              packages =
+                (with pkgs; [
+                ])
+                ++ commonArgs.nativeBuildInputs
+                ++ commonArgs.buildInputs;
+              inherit (commonArgs) PKG_CONFIG_PATH;
+              RUST_SRC_PATH = "${pkgs.rustPlatform.rustLibSrc}";
+            };
+
+            gemini = craneLib.devShell {
+              packages =
+                (with pkgs; [
+                  gemini-cli
+                ])
+                ++ commonArgs.nativeBuildInputs
+                ++ commonArgs.buildInputs;
+              inherit (commonArgs) PKG_CONFIG_PATH;
+              RUST_SRC_PATH = "${pkgs.rustPlatform.rustLibSrc}";
+            };
           };
 
           packages.default = useful-api;
