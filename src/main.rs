@@ -76,6 +76,17 @@ async fn mensatoshi(cache_state: &State<Cache>) -> String {
     )
 }
 
+#[get("/congressbeer?<satoshi>")]
+fn congressbeer(satoshi: f64) -> String {
+    const CONGRESSBEER_SATOSHI: f64 = 69.0;
+    let congressbeers = (satoshi / CONGRESSBEER_SATOSHI).floor() as i64;
+    format!(
+        "{} Satoshi entspricht {} Congressbeers.",
+        satoshi,
+        congressbeers
+    )
+}
+
 #[launch]
 fn rocket() -> _ {
     let port = std::env::var("USEFUL_API_PORT")
@@ -89,5 +100,5 @@ fn rocket() -> _ {
 
     rocket::custom(config)
         .manage(Mutex::new(None::<SatoshiPriceCache>))
-        .mount("/", routes![hello, mensatoshi])
+        .mount("/", routes![hello, mensatoshi, congressbeer])
 }
