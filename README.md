@@ -78,23 +78,76 @@ Request: `GET /congressbeer?satoshi=50`
 
 ---
 
-## 🛠️ Technical Details
+## ⚙️ Configuration
 
-- **Framework:** Rocket (Rust)
-- **Runtime:** Tokio
-- **Port:** 3000
-- **Host:** 0.0.0.0 (listens on all interfaces)
+The application can be configured using environment variables:
 
-## 🚦 Running the Server
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `USEFUL_API_PORT` | The port the server listens on | `3000` |
 
+---
+
+## 🛠️ Development
+
+### Prerequisites
+
+- **Rust** (latest stable) & **Cargo**
+- OR: **Nix** (with flake support enabled)
+
+### Running locally
+
+**Using Cargo:**
 ```bash
 cargo run
 ```
 
-The server will start on `http://0.0.0.0:3000`
+**Using Nix:**
+```bash
+nix run
+```
+
+### Development Environment
+
+If you are using Nix, you can enter a reproducible development shell with all dependencies (including `pkg-config`, `openssl`, and `gemini-cli`) pre-configured:
+
+```bash
+nix develop
+```
+
+---
+
+## 📦 Building
+
+**Using Cargo:**
+```bash
+cargo build --release
+```
+The binary will be located at `target/release/useful-api`.
+
+**Using Nix:**
+```bash
+nix build
+```
+The binary will be available in `./result/bin/useful-api`.
+
+---
+
+## 🧩 Technical Stack
+
+- **Framework:** [Rocket](https://rocket.rs/) (v0.5.1)
+- **HTTP Client:** [reqwest](https://docs.rs/reqwest/) (v0.13)
+- **Serialization:** [serde](https://serde.rs/) & [serde_json](https://docs.rs/serde_json/)
+- **Runtime:** Tokio
+- **Build System:** Cargo & Nix (via [Crane](https://github.com/ipetkov/crane))
 
 ## 📝 Notes
 
-- The API uses Rocket's managed state for caching Bitcoin price data
-- CoinGecko API rate limits are handled gracefully
-- All endpoints return plain text responses
+- The API uses Rocket's managed state for caching Bitcoin price data.
+- CoinGecko API rate limits are handled gracefully.
+- All endpoints return plain text responses.
+- `0.0.0.0` is used as the bind address, making the server accessible externally.
+
+## ⚠️ Disclaimer
+
+This API involves cryptocurrency data which is highly volatile. The conversions provided are for entertainment purposes only and should not be used for financial decisions.
