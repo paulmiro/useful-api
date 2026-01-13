@@ -29,7 +29,10 @@ pub struct MensaSatoshiData {
 }
 
 #[get("/mensatoshi?<format>")]
-pub async fn mensatoshi(cache_state: &State<Cache>, format: Option<String>) -> ApiResponse<MensaSatoshiData> {
+pub async fn mensatoshi(
+    cache_state: &State<Cache>,
+    format: Option<String>,
+) -> ApiResponse<MensaSatoshiData> {
     let mut cache = cache_state.lock().await;
 
     let satoshi_per_eur = match *cache {
@@ -44,7 +47,7 @@ pub async fn mensatoshi(cache_state: &State<Cache>, format: Option<String>) -> A
                 Err(_) => {
                     return ApiResponse::Error(ApiError {
                         message: "Error creating HTTP client".to_string(),
-                    })
+                    });
                 }
             };
 
@@ -53,7 +56,7 @@ pub async fn mensatoshi(cache_state: &State<Cache>, format: Option<String>) -> A
                 Err(_) => {
                     return ApiResponse::Error(ApiError {
                         message: "Error fetching data from CoinGecko".to_string(),
-                    })
+                    });
                 }
             };
             match response.json::<CoinGeckoResponse>().await {

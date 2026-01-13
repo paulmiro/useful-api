@@ -66,7 +66,7 @@ pub async fn shark(format: Option<String>) -> ApiResponse<SharkData> {
         Err(_) => {
             return ApiResponse::Error(ApiError {
                 message: "Error fetching data from Ikea".to_string(),
-            })
+            });
         }
     };
 
@@ -75,7 +75,7 @@ pub async fn shark(format: Option<String>) -> ApiResponse<SharkData> {
         Err(_) => {
             return ApiResponse::Error(ApiError {
                 message: "Error parsing Ikea response".to_string(),
-            })
+            });
         }
     };
 
