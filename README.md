@@ -2,7 +2,7 @@
 
 ## 🚀 Overview
 
-This is a very useful API that does very useful things. Built with Rust and Rocket, it provides endpoints for calculating satoshi-related conversions with a focus on real-world applications like Mensa meals and Congressbeers, as well as checking stock for our favorite sharks.
+This is a very useful API that does very useful things. Built with Rust and Rocket, it provides endpoints for calculating satoshi-related conversions with a focus on real-world applications like Mensa meals and Congress-Beers, as well as checking stock for our favorite sharks.
 
 ## 📡 Endpoints
 
@@ -78,44 +78,73 @@ Der IKEA Godorf hat aktuell 42 beeghajs und 69 smolhajs auf Lager :D
 
 ---
 
-### 🍺 Congressbeer Endpoint
+### 🍺 Congress-Beer Endpoint
 
 **GET** `/congressbeer?satoshi=<amount>`
 
-Calculates how many Congressbeers a given amount of satoshi could have been, where **1 Congressbeer = 69 satoshi**. The result is rounded down to the nearest integer (floor division).
+Calculates how many Congress-Beers a given amount of satoshi could have been, where **1 Congress-Beer = 69 satoshi**. The result is rounded down to the nearest integer (floor division).
 
 **Query Parameters:**
-- `satoshi` (required): The amount of satoshi to convert to Congressbeers (must be a number)
+- `satoshi` (required): The amount of satoshi to convert to Congress-Beers (must be a number)
 
 **Examples:**
 
 Request: `GET /congressbeer?satoshi=690`
 ```
-690 Satoshi entspricht 10 Congressbeers.
+690 Satoshi entspricht 10 Bier auf dem Congress.
 ```
 
 Request: `GET /congressbeer?satoshi=200`
 ```
-200 Satoshi entspricht 2 Congressbeers.
+200 Satoshi entspricht 2 Bier auf dem Congress.
 ```
 *(200 ÷ 69 = 2.89... → floors to 2)*
 
 Request: `GET /congressbeer?satoshi=138`
 ```
-138 Satoshi entspricht 2 Congressbeers.
+138 Satoshi entspricht 2 Bier auf dem Congress.
 ```
 *(138 ÷ 69 = 2.0 → exactly 2)*
 
 Request: `GET /congressbeer?satoshi=50`
 ```
-50 Satoshi entspricht 0 Congressbeers.
+50 Satoshi entspricht 0 Bier auf dem Congress.
 ```
 *(50 ÷ 69 = 0.72... → floors to 0)*
 
 **Features:**
-- 🍺 Calculates Congressbeers based on the legendary 69 satoshi per beer rate
+- 🍺 Calculates Congress-Beers based on the legendary 69 satoshi per beer rate
 - 🔢 Returns integer values only (rounded down)
 - 📊 Simple and efficient calculation
+
+---
+
+### 🥘🍺 Mensa-Beer Endpoint
+
+**GET** `/mensabeer`
+
+Calculates how many Congress-Beers you could buy for the price of one Mensa meal, based on the current Bitcoin exchange rate.
+
+**Query Parameters:**
+- `format` (optional): Set to `json` to get a JSON response.
+
+**Response (Plain Text):**
+```
+Für den Preis eines Mensa-Eintopfs bekommt man aktuell 123 Bier auf dem Congress.
+```
+
+**Response (JSON):**
+```json
+{
+  "beers": 123.0,
+  "message": "Für den Preis eines Mensa-Eintopfs bekommt man aktuell 123 Bier auf dem Congress."
+}
+```
+
+**Features:**
+- 🔄 Combines real-time Bitcoin data with Mensa and Congress metrics.
+- 🍺 Shows the purchasing power of a Mensa meal in the most important currency: Congress-Beer.
+- 🍽️ Uses the same fixed Mensa price (€1.20) as the Mensa Satoshi endpoint.
 
 ---
 

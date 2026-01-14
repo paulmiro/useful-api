@@ -1,3 +1,4 @@
+use crate::common::constants::CONGRESSBEER_SATOSHI;
 use crate::endpoints::ApiResponse;
 use serde::Serialize;
 
@@ -9,10 +10,9 @@ pub struct CongressBeerData {
 
 #[get("/congressbeer?<satoshi>&<format>")]
 pub fn congressbeer(satoshi: f64, format: Option<String>) -> ApiResponse<CongressBeerData> {
-    const CONGRESSBEER_SATOSHI: f64 = 69.0;
     let congressbeers = (satoshi / CONGRESSBEER_SATOSHI).floor() as i64;
     let message = format!(
-        "{} Satoshi entspricht {} Congressbeers.",
+        "{} Satoshi entspricht {} Bier auf dem Congress.",
         satoshi, congressbeers
     );
 

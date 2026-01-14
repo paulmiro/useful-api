@@ -1,5 +1,6 @@
 pub mod congressbeer;
 pub mod hello;
+pub mod mensabeer;
 pub mod mensatoshi;
 pub mod shark;
 

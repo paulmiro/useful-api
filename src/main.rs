@@ -3,12 +3,15 @@ extern crate rocket;
 
 use rocket::tokio::sync::RwLock;
 
+mod common;
 mod endpoints;
 
+use common::bitcoin::BitcoinPriceCache;
 use endpoints::{
     congressbeer::congressbeer,
     hello::hello,
-    mensatoshi::{SatoshiPriceCache, mensatoshi},
+    mensabeer::mensabeer,
+    mensatoshi::mensatoshi,
     shark::{SharkCache, shark},
 };
 
@@ -24,7 +27,10 @@ fn rocket() -> _ {
         .merge(("address", "0.0.0.0"));
 
     rocket::custom(config)
-        .manage(RwLock::new(None::<SatoshiPriceCache>))
+        .manage(RwLock::new(None::<BitcoinPriceCache>))
         .manage(RwLock::new(None::<SharkCache>))
-        .mount("/", routes![hello, mensatoshi, congressbeer, shark])
+        .mount(
+            "/",
+            routes![hello, mensatoshi, congressbeer, shark, mensabeer],
+        )
 }

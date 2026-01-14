@@ -1,38 +1,36 @@
 use crate::common::bitcoin::{Cache, get_price};
-use crate::common::constants::MENSA_EINTOPF_EUR;
+use crate::common::constants::{CONGRESSBEER_SATOSHI, MENSA_EINTOPF_EUR};
 use crate::endpoints::ApiResponse;
 use rocket::State;
 use serde::Serialize;
 
 #[derive(Serialize)]
-pub struct MensaSatoshiData {
-    satoshi: f64,
+pub struct MensaBeerData {
+    beers: f64,
     message: String,
 }
 
-#[get("/mensatoshi?<format>")]
-pub async fn mensatoshi(
+#[get("/mensabeer?<format>")]
+pub async fn mensabeer(
     cache_state: &State<Cache>,
     format: Option<String>,
-) -> ApiResponse<MensaSatoshiData> {
+) -> ApiResponse<MensaBeerData> {
     let eur_per_btc = match get_price(cache_state).await {
         Ok(price) => price,
         Err(e) => return ApiResponse::Error(e),
     };
     let satoshi_per_eur = 100_000_000.0 / eur_per_btc;
 
-    let mensasatoshi = MENSA_EINTOPF_EUR * satoshi_per_eur;
-    let rounded_satoshi = mensasatoshi.round();
+    let mensa_satoshi = MENSA_EINTOPF_EUR * satoshi_per_eur;
+    let beers = (mensa_satoshi / CONGRESSBEER_SATOSHI).floor();
+
     let message = format!(
-        "Der Mensa-Eintopf kostet aktuell {} Satoshi.",
-        rounded_satoshi
+        "Für den Preis eines Mensa-Eintopfs bekommt man aktuell {} Bier auf dem Congress.",
+        beers
     );
 
     match format.as_deref() {
-        Some("json") => ApiResponse::Json(MensaSatoshiData {
-            satoshi: rounded_satoshi,
-            message,
-        }),
+        Some("json") => ApiResponse::Json(MensaBeerData { beers, message }),
         _ => ApiResponse::Plain(message),
     }
 }
