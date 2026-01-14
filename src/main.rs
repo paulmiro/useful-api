@@ -9,7 +9,7 @@ use endpoints::{
     congressbeer::congressbeer,
     hello::hello,
     mensatoshi::{SatoshiPriceCache, mensatoshi},
-    shark::shark,
+    shark::{SharkCache, shark},
 };
 
 #[launch]
@@ -25,5 +25,6 @@ fn rocket() -> _ {
 
     rocket::custom(config)
         .manage(RwLock::new(None::<SatoshiPriceCache>))
+        .manage(RwLock::new(None::<SharkCache>))
         .mount("/", routes![hello, mensatoshi, congressbeer, shark])
 }
