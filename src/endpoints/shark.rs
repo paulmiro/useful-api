@@ -16,6 +16,7 @@ pub type Cache = RwLock<Option<SharkCache>>;
 pub struct SharkData {
     beeghaj: i32,
     smolhaj: i32,
+    whale: i32,
     message: String,
 }
 
@@ -63,7 +64,7 @@ struct ClassUnitKey {
 }
 
 async fn fetch_shark_data() -> Result<SharkData, ApiError> {
-    let url = "https://api.salesitem.ingka.com/availabilities/ru/de?itemNos=30373588,20540663&expand=StoresList";
+    let url = "https://api.salesitem.ingka.com/availabilities/ru/de?itemNos=30373588,20540663,00522113&expand=StoresList";
     let client = reqwest::Client::new();
 
     let response = client
@@ -99,8 +100,9 @@ async fn fetch_shark_data() -> Result<SharkData, ApiError> {
 
     let beeghaj_qty = get_quantity("30373588");
     let smolhaj_qty = get_quantity("20540663");
+    let whale_qty = get_quantity("00522113");
 
-    let message = if beeghaj_qty == 0 && smolhaj_qty == 0 {
+    let message = if beeghaj_qty == 0 && smolhaj_qty == 0 && whale_qty == 0 {
         "Der IKEA Godorf hat aktuell überhaupt keine sharks auf lager :(".to_string()
     } else {
         let format_part = |qty: i32, name: &str| -> String {
@@ -115,13 +117,14 @@ async fn fetch_shark_data() -> Result<SharkData, ApiError> {
 
         let beeghaj_str = format_part(beeghaj_qty, "beeghaj");
         let smolhaj_str = format_part(smolhaj_qty, "smolhaj");
+        let whale_str = format_part(whale_qty, "whale");
 
         let mut msg = format!(
-            "Der IKEA Godorf hat aktuell {} und {} auf Lager",
-            beeghaj_str, smolhaj_str
+            "Der IKEA Godorf hat aktuell {}, {} und {} auf Lager",
+            beeghaj_str, smolhaj_str, whale_str
         );
 
-        if beeghaj_qty > 0 && smolhaj_qty > 0 {
+        if beeghaj_qty > 0 && smolhaj_qty > 0 && whale_qty > 0 {
             msg.push_str(" :D");
         }
         msg
@@ -130,6 +133,7 @@ async fn fetch_shark_data() -> Result<SharkData, ApiError> {
     Ok(SharkData {
         beeghaj: beeghaj_qty,
         smolhaj: smolhaj_qty,
+        whale: whale_qty,
         message,
     })
 }

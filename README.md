@@ -52,14 +52,14 @@ Der Mensa-Eintopf kostet aktuell 1234 Satoshi.
 
 **GET** `/shark`
 
-Checks the stock of "beeghaj" (large Blåhaj) and "smolhaj" (small Blåhaj) at IKEA Godorf. The stock data is cached for 5 minutes.
+Checks the stock of "beeghaj" (large Blåhaj), "smolhaj" (small Blåhaj), and "whale" (Blåvingad Whale) at IKEA Godorf. The stock data is cached for 5 minutes.
 
 **Query Parameters:**
 - `format` (optional): Set to `json` to get a JSON response.
 
 **Response (Plain Text):**
 ```
-Der IKEA Godorf hat aktuell 42 beeghajs und 69 smolhajs auf Lager :D
+Der IKEA Godorf hat aktuell 42 beeghajs, 69 smolhajs und 7 whales auf Lager :D
 ```
 
 **Response (JSON):**
@@ -67,14 +67,15 @@ Der IKEA Godorf hat aktuell 42 beeghajs und 69 smolhajs auf Lager :D
 {
   "beeghaj": 42,
   "smolhaj": 69,
-  "message": "Der IKEA Godorf hat aktuell 42 beeghajs und 69 smolhajs auf Lager :D"
+  "whale": 7,
+  "message": "Der IKEA Godorf hat aktuell 42 beeghajs, 69 smolhajs und 7 whales auf Lager :D"
 }
 ```
 
 **Features:**
 - 🦈 Fetches real-time stock data from IKEA API
 - ⚡ Caches results for 5 minutes to optimize performance
-- 📦 Tracks both sizes of our favorite plushie
+- 📦 Tracks multiple plushie varieties from the IKEA ocean collection
 
 ---
 
