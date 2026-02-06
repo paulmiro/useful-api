@@ -41,8 +41,9 @@ in
         fi
       '';
       serviceConfig = {
-        DynamicUser = true;
         Type = "oneshot";
+        DynamicUser = true;
+        SupplementaryGroups = [ "nixbld" ];
         WorkingDirectory = "/var/lib/useful-api";
         StateDirectory = "useful-api";
         RemainAfterExit = true;
@@ -87,6 +88,7 @@ in
         WorkingDirectory = "/var/lib/useful-api";
         StateDirectory = "useful-api";
         DynamicUser = true;
+        SupplementaryGroups = [ "nixbld" ];
         ExecStart = pkgs.writeShellScript "useful-api-updater" ''
           set -euo pipefail
           cd "/var/lib/useful-api"
