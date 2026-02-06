@@ -40,18 +40,22 @@ in
     systemd.services.useful-api-initial-setup = {
       description = "Initial clone and build of useful-api";
       after = [ "network-online.target" ];
+      wants = [ "network-online.target" ];
       wantedBy = [ "multi-user.target" ];
       path = [
         pkgs.git
         pkgs.nix
       ];
+      environment = {
+        "NIX_CACHE_HOME" = "/var/lib/useful-api/.cache/nix";
+      };
       script = ''
-        if [ ! -d "/var/lib/useful-api/repo/.git" ]; then
-          git clone "${cfg.repoUrl}" "/var/lib/useful-api/repo"
+        if [ ! -d "repo/.git" ]; then
+          git clone "${cfg.repoUrl}" repo
         fi
-        if [ ! -e "/var/lib/useful-api/result" ]; then
-          export NIX_CACHE_HOME="/var/lib/useful-api/.cache/nix"
-          nix build "/var/lib/useful-api/repo#useful-api" -o "/var/lib/useful-api/result"
+        cd repo
+        if [ ! -e result ]; then
+          nix build ".#useful-api" -o result
         fi
       '';
       serviceConfig = {
@@ -69,7 +73,6 @@ in
       after = [ "useful-api-initial-setup.service" ];
       wants = [ "useful-api-initial-setup.service" ];
       wantedBy = [ "multi-user.target" ];
-
       serviceConfig = {
         ExecStart = "/var/lib/useful-api/result/bin/useful-api";
         Environment = [ "USEFUL_API_PORT=${toString cfg.port}" ];
@@ -98,23 +101,25 @@ in
         pkgs.git
         pkgs.nix
       ];
+      environment = {
+        "NIX_CACHE_HOME" = "/var/lib/useful-api/.cache/nix";
+      };
       serviceConfig = {
         Type = "oneshot";
-        WorkingDirectory = "/var/lib/useful-api";
+        WorkingDirectory = "/var/lib/useful-api/repo";
         StateDirectory = "useful-api";
         User = "useful-api";
         Group = "useful-api";
         ExecStart = pkgs.writeShellScript "useful-api-updater" ''
           set -euo pipefail
-          cd "/var/lib/useful-api"
           git fetch
           if [ "$(git rev-parse HEAD)" != "$(git rev-parse '@{u}')" ]; then
             echo "New changes detected, updating..."
             git pull --rebase --force
-            export NIX_CACHE_HOME="/var/lib/useful-api/.cache/nix"
-            nix build "/var/lib/useful-api#useful-api" -o "/var/lib/useful-api/result-new"
+            cd ..
+            nix build "repo#useful-api" -o result-new
             # Atomically replace the old binary link
-            mv -f "/var/lib/useful-api/result-new" "/var/lib/useful-api/result"
+            mv -f result-new result
           else
             echo "Already up to date."
           fi
