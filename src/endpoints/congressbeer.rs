@@ -1,13 +1,16 @@
 use crate::common::constants::CONGRESSBEER_SATOSHI;
 use crate::endpoints::ApiResponse;
+use rocket_okapi::openapi;
+use schemars::JsonSchema;
 use serde::Serialize;
 
-#[derive(Serialize)]
+#[derive(Serialize, JsonSchema)]
 pub struct CongressBeerData {
     congressbeers: i64,
     message: String,
 }
 
+#[openapi(tag = "Conversion")]
 #[get("/congressbeer?<satoshi>&<format>")]
 pub fn congressbeer(satoshi: Option<f64>, format: Option<String>) -> ApiResponse<CongressBeerData> {
     let satoshi = satoshi.unwrap_or(CONGRESSBEER_SATOSHI);

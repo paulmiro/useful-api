@@ -2,6 +2,8 @@ use crate::endpoints::{ApiError, ApiResponse};
 use rocket::State;
 use rocket::serde::{Deserialize, Serialize};
 use rocket::tokio::sync::RwLock;
+use rocket_okapi::openapi;
+use schemars::JsonSchema;
 use std::time::{Duration, Instant};
 
 #[derive(Clone)]
@@ -12,7 +14,7 @@ pub struct SharkCache {
 
 pub type Cache = RwLock<Option<SharkCache>>;
 
-#[derive(Serialize, Clone)]
+#[derive(Serialize, Clone, JsonSchema)]
 pub struct SharkData {
     beeghaj: i32,
     smolhaj: i32,
@@ -169,6 +171,7 @@ async fn get_shark_data(cache_state: &State<Cache>) -> Result<SharkData, ApiErro
     Ok(data)
 }
 
+#[openapi(tag = "Shark")]
 #[get("/shark?<format>")]
 pub async fn shark(cache_state: &State<Cache>, format: Option<String>) -> ApiResponse<SharkData> {
     let data = match get_shark_data(cache_state).await {
