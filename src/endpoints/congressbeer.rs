@@ -13,7 +13,7 @@ pub fn congressbeer(satoshi: Option<f64>, format: Option<String>) -> ApiResponse
     let satoshi = satoshi.unwrap_or(CONGRESSBEER_SATOSHI);
     let congressbeers = (satoshi / CONGRESSBEER_SATOSHI).floor() as i64;
     let message = format!(
-        "{} Satoshi entspricht {} Bier auf dem Congress. yaay",
+        "{} Satoshi entspricht {} Bier auf dem Congress.",
         satoshi, congressbeers
     );
 
