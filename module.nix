@@ -54,7 +54,7 @@ in
           git clone "${cfg.repoUrl}" repo
         fi
         if [ ! -e result ]; then
-          nix build "repo#useful-api" -o result
+          nix build "./repo#useful-api" -o result
         fi
       '';
       serviceConfig = {
@@ -116,7 +116,7 @@ in
             echo "New changes detected, updating..."
             git pull --rebase --force
             cd ..
-            nix build "repo#useful-api" -o result-new
+            nix build "./repo#useful-api" -o result-new
             # Atomically replace the old binary link
             mv -f result-new result
           else
