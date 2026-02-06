@@ -8,7 +8,10 @@
   outputs =
     { flake-parts, crane, ... }@inputs:
     flake-parts.lib.mkFlake { inherit inputs; } {
-      systems = [ "x86_64-linux" "aarch64-linux" ];
+      systems = [
+        "x86_64-linux"
+        "aarch64-linux"
+      ];
       perSystem =
         { pkgs, ... }:
         let
@@ -63,5 +66,9 @@
           packages.default = useful-api;
           packages.useful-api = useful-api;
         };
+
+      flake = {
+        nixosModules.useful-api-auto-update = import ./module.nix;
+      };
     };
 }
