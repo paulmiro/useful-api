@@ -31,7 +31,7 @@ in
 
     users.groups.useful-api = { };
 
-    config.nix.settings.allowed-users = [ "useful-api" ];
+    nix.settings.allowed-users = [ "useful-api" ];
 
     systemd.tmpfiles.rules = [
       "d /var/lib/useful-api 0750 useful-api useful-api - -"
