@@ -43,6 +43,7 @@ in
       serviceConfig = {
         DynamicUser = true;
         Type = "oneshot";
+        WorkingDirectory = cfg.dataDir;
         RemainAfterExit = true;
       };
     };
@@ -94,6 +95,7 @@ in
         description = "Update useful-api git repository and rebuild";
         serviceConfig = {
           Type = "oneshot";
+          WorkingDirectory = cfg.dataDir;
           ExecStart = updateScript;
           DynamicUser = true;
         };
