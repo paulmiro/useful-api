@@ -80,7 +80,6 @@ in
         Restart = "on-failure";
         WorkingDirectory = "/var/lib/useful-api";
         StateDirectory = "useful-api";
-        ReloadPropagatedFrom = [ "useful-api.path" ];
       };
       partOf = [ "useful-api.path" ];
     };
