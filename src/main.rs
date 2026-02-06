@@ -14,7 +14,23 @@ use endpoints::{
     mensatoshi::mensatoshi,
     shark::{SharkCache, shark},
     teapot::teapot,
+    random::random,
 };
+
+// Central list of route paths used by the API.
+// This can be consumed by other endpoints (e.g. /random) to avoid
+// duplicating the list of valid routes.
+pub fn all_routes() -> &'static [&'static str] {
+    &[
+        "/",            // hello
+        "/mensabeer",
+        "/mensatoshi",
+        "/congressbeer",
+        "/shark",
+        "/teapot",
+        "/random",
+    ]
+}
 
 #[launch]
 fn rocket() -> _ {
@@ -32,6 +48,6 @@ fn rocket() -> _ {
         .manage(RwLock::new(None::<SharkCache>))
         .mount(
             "/",
-            routes![hello, mensatoshi, congressbeer, shark, mensabeer, teapot],
+            routes![hello, mensatoshi, congressbeer, shark, mensabeer, teapot, random],
         )
 }

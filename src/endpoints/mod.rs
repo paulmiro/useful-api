@@ -4,6 +4,7 @@ pub mod mensabeer;
 pub mod mensatoshi;
 pub mod shark;
 pub mod teapot;
+pub mod random;
 
 use rocket::http::ContentType;
 use rocket::request::Request;
