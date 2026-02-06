@@ -20,11 +20,6 @@ in
       default = 3000;
       description = "Port to listen on.";
     };
-    dataDir = lib.mkOption {
-      type = lib.types.path;
-      default = "/var/lib/useful-api";
-      description = "Directory to store the git repository and build artifacts.";
-    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -33,17 +28,18 @@ in
       after = [ "network-online.target" ];
       wantedBy = [ "multi-user.target" ];
       script = ''
-        if [ ! -d "${cfg.dataDir}/repo/.git" ]; then
-          ${pkgs.git}/bin/git clone "${cfg.repoUrl}" "${cfg.dataDir}/repo"
+        if [ ! -d "/var/lib/useful-api/repo/.git" ]; then
+          ${pkgs.git}/bin/git clone "${cfg.repoUrl}" "/var/lib/useful-api/repo"
         fi
-        if [ ! -e "${cfg.dataDir}/result" ]; then
-          ${pkgs.nix}/bin/nix build "${cfg.dataDir}/repo#useful-api" -o "${cfg.dataDir}/result"
+        if [ ! -e "/var/lib/useful-api/result" ]; then
+          ${pkgs.nix}/bin/nix build "/var/lib/useful-api/repo#useful-api" -o "/var/lib/useful-api/result"
         fi
       '';
       serviceConfig = {
         DynamicUser = true;
         Type = "oneshot";
-        WorkingDirectory = cfg.dataDir;
+        WorkingDirectory = "/var/lib/useful-api";
+        StateDirectory = "useful-api";
         RemainAfterExit = true;
       };
     };
@@ -55,11 +51,12 @@ in
       wantedBy = [ "multi-user.target" ];
 
       serviceConfig = {
-        ExecStart = "${cfg.dataDir}/result/bin/useful-api";
+        ExecStart = "/var/lib/useful-api/result/bin/useful-api";
         Environment = [ "USEFUL_API_PORT=${toString cfg.port}" ];
         DynamicUser = true;
         Restart = "on-failure";
-        WorkingDirectory = cfg.dataDir;
+        WorkingDirectory = "/var/lib/useful-api";
+        StateDirectory = "useful-api";
         ReloadPropagatedFrom = [ "useful-api.path" ];
       };
       partOf = [ "useful-api.path" ];
@@ -69,7 +66,7 @@ in
       description = "Watch for changes in the useful-api build result";
       wantedBy = [ "multi-user.target" ];
       pathConfig = {
-        PathChanged = "${cfg.dataDir}/result";
+        PathChanged = "/var/lib/useful-api/result";
         Unit = "useful-api.service";
       };
     };
@@ -78,14 +75,14 @@ in
       let
         updateScript = pkgs.writeShellScript "useful-api-updater" ''
           set -euo pipefail
-          cd "${cfg.dataDir}"
+          cd "/var/lib/useful-api"
           ${pkgs.git}/bin/git fetch
           if [ "$(${pkgs.git}/bin/git rev-parse HEAD)" != "$(${pkgs.git}/bin/git rev-parse '@{u}')" ]; then
             echo "New changes detected, updating..."
             ${pkgs.git}/bin/git pull --rebase --force
-            ${pkgs.nix}/bin/nix build "${cfg.dataDir}#useful-api" -o "${cfg.dataDir}/result-new"
+            ${pkgs.nix}/bin/nix build "/var/lib/useful-api#useful-api" -o "/var/lib/useful-api/result-new"
             # Atomically replace the old binary link
-            mv -f "${cfg.dataDir}/result-new" "${cfg.dataDir}/result"
+            mv -f "/var/lib/useful-api/result-new" "/var/lib/useful-api/result"
           else
             echo "Already up to date."
           fi
@@ -95,7 +92,8 @@ in
         description = "Update useful-api git repository and rebuild";
         serviceConfig = {
           Type = "oneshot";
-          WorkingDirectory = cfg.dataDir;
+          WorkingDirectory = "/var/lib/useful-api";
+          StateDirectory = "useful-api";
           ExecStart = updateScript;
           DynamicUser = true;
         };
