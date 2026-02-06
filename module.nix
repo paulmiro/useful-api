@@ -27,12 +27,16 @@ in
       description = "Initial clone and build of useful-api";
       after = [ "network-online.target" ];
       wantedBy = [ "multi-user.target" ];
+      path = [
+        pkgs.git
+        pkgs.nix
+      ];
       script = ''
         if [ ! -d "/var/lib/useful-api/repo/.git" ]; then
-          ${pkgs.git}/bin/git clone "${cfg.repoUrl}" "/var/lib/useful-api/repo"
+          git clone "${cfg.repoUrl}" "/var/lib/useful-api/repo"
         fi
         if [ ! -e "/var/lib/useful-api/result" ]; then
-          ${pkgs.nix}/bin/nix build "/var/lib/useful-api/repo#useful-api" -o "/var/lib/useful-api/result"
+          nix --option eval-cache false build "/var/lib/useful-api/repo#useful-api" -o "/var/lib/useful-api/result"
         fi
       '';
       serviceConfig = {
@@ -71,33 +75,33 @@ in
       };
     };
 
-    systemd.services.useful-api-updater =
-      let
-        updateScript = pkgs.writeShellScript "useful-api-updater" ''
+    systemd.services.useful-api-updater = {
+      description = "Update useful-api git repository and rebuild";
+      path = [
+        pkgs.git
+        pkgs.nix
+      ];
+      serviceConfig = {
+        Type = "oneshot";
+        WorkingDirectory = "/var/lib/useful-api";
+        StateDirectory = "useful-api";
+        DynamicUser = true;
+        ExecStart = pkgs.writeShellScript "useful-api-updater" ''
           set -euo pipefail
           cd "/var/lib/useful-api"
-          ${pkgs.git}/bin/git fetch
-          if [ "$(${pkgs.git}/bin/git rev-parse HEAD)" != "$(${pkgs.git}/bin/git rev-parse '@{u}')" ]; then
+          git fetch
+          if [ "$(git rev-parse HEAD)" != "$(git rev-parse '@{u}')" ]; then
             echo "New changes detected, updating..."
-            ${pkgs.git}/bin/git pull --rebase --force
-            ${pkgs.nix}/bin/nix build "/var/lib/useful-api#useful-api" -o "/var/lib/useful-api/result-new"
+            git pull --rebase --force
+            nix --option eval-cache false build "/var/lib/useful-api#useful-api" -o "/var/lib/useful-api/result-new"
             # Atomically replace the old binary link
             mv -f "/var/lib/useful-api/result-new" "/var/lib/useful-api/result"
           else
             echo "Already up to date."
           fi
         '';
-      in
-      {
-        description = "Update useful-api git repository and rebuild";
-        serviceConfig = {
-          Type = "oneshot";
-          WorkingDirectory = "/var/lib/useful-api";
-          StateDirectory = "useful-api";
-          ExecStart = updateScript;
-          DynamicUser = true;
-        };
       };
+    };
 
     systemd.timers.useful-api-updater = {
       description = "Run useful-api-updater every 5 minutes";
