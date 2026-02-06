@@ -4,6 +4,8 @@
 
 This is a very useful API that does very useful things. Built with Rust and Rocket, it provides endpoints for calculating satoshi-related conversions with a focus on real-world applications like Mensa meals and Congress-Beers, as well as checking stock for our favorite sharks.
 
+Interactive API documentation is available via Swagger UI at `/swagger-ui/`.
+
 ## 📡 Endpoints
 
 ### 🏠 Root Endpoint
@@ -16,6 +18,14 @@ Returns a simple greeting.
 ```
 Hello, World!
 ```
+
+---
+
+### 🫖 Teapot Endpoint
+
+**GET** `/teapot`
+
+Returns a `418 I'm a teapot` status code.
 
 ---
 
@@ -208,6 +218,8 @@ The binary will be available in `./result/bin/useful-api`.
 ## 🧩 Technical Stack
 
 - **Framework:** [Rocket](https://rocket.rs/) (v0.5.1)
+- **API Documentation:** [OpenAPI / Swagger UI](https://swagger.io/) via [rocket_okapi](https://github.com/GREsau/okapi)
+- **Schema Generation:** [schemars](https://github.com/GREsau/schemars)
 - **HTTP Client:** [reqwest](https://docs.rs/reqwest/) (v0.13)
 - **Serialization:** [serde](https://serde.rs/) & [serde_json](https://docs.rs/serde_json/)
 - **Runtime:** Tokio
@@ -215,6 +227,7 @@ The binary will be available in `./result/bin/useful-api`.
 
 ## 📝 Notes
 
+- Interactive API documentation is served at `/swagger-ui/`.
 - The API uses Rocket's managed state and `RwLock` for caching data.
 - CoinGecko API rate limits are handled gracefully.
 - Endpoints support both plain text and JSON responses (via `?format=json`).
