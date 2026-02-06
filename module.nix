@@ -36,7 +36,9 @@ in
           git clone "${cfg.repoUrl}" "/var/lib/useful-api/repo"
         fi
         if [ ! -e "/var/lib/useful-api/result" ]; then
-          nix --option eval-cache false build "/var/lib/useful-api/repo#useful-api" -o "/var/lib/useful-api/result"
+          mkdir -p .cache/nix
+          NIX_CACHE_HOME="/var/lib/useful-api/.cache/nix"
+          nix build "/var/lib/useful-api/repo#useful-api" -o "/var/lib/useful-api/result"
         fi
       '';
       serviceConfig = {
@@ -93,7 +95,9 @@ in
           if [ "$(git rev-parse HEAD)" != "$(git rev-parse '@{u}')" ]; then
             echo "New changes detected, updating..."
             git pull --rebase --force
-            nix --option eval-cache false build "/var/lib/useful-api#useful-api" -o "/var/lib/useful-api/result-new"
+            mkdir -p .cache/nix
+            NIX_CACHE_HOME="/var/lib/useful-api/.cache/nix"
+            nix false build "/var/lib/useful-api#useful-api" -o "/var/lib/useful-api/result-new"
             # Atomically replace the old binary link
             mv -f "/var/lib/useful-api/result-new" "/var/lib/useful-api/result"
           else
