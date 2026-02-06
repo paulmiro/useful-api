@@ -2,14 +2,17 @@ use crate::common::bitcoin::{Cache, get_price};
 use crate::common::constants::MENSA_EINTOPF_EUR;
 use crate::endpoints::ApiResponse;
 use rocket::State;
+use rocket_okapi::openapi;
+use schemars::JsonSchema;
 use serde::Serialize;
 
-#[derive(Serialize)]
+#[derive(Serialize, JsonSchema)]
 pub struct MensaSatoshiData {
     satoshi: f64,
     message: String,
 }
 
+#[openapi(tag = "Conversion")]
 #[get("/mensatoshi?<format>")]
 pub async fn mensatoshi(
     cache_state: &State<Cache>,

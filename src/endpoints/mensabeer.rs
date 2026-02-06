@@ -2,14 +2,17 @@ use crate::common::bitcoin::{Cache, get_price};
 use crate::common::constants::{CONGRESSBEER_SATOSHI, MENSA_EINTOPF_EUR};
 use crate::endpoints::ApiResponse;
 use rocket::State;
+use rocket_okapi::openapi;
+use schemars::JsonSchema;
 use serde::Serialize;
 
-#[derive(Serialize)]
+#[derive(Serialize, JsonSchema)]
 pub struct MensaBeerData {
     beers: f64,
     message: String,
 }
 
+#[openapi(tag = "Conversion")]
 #[get("/mensabeer?<format>")]
 pub async fn mensabeer(
     cache_state: &State<Cache>,
