@@ -37,8 +37,7 @@ in
         fi
         if [ ! -e "/var/lib/useful-api/result" ]; then
           mkdir -p .cache/nix
-          NIX_CACHE_HOME="/var/lib/useful-api/.cache/nix"
-          nix build "/var/lib/useful-api/repo#useful-api" -o "/var/lib/useful-api/result"
+          NIX_CACHE_HOME="/var/lib/useful-api/.cache/nix" nix build "/var/lib/useful-api/repo#useful-api" -o "/var/lib/useful-api/result"
         fi
       '';
       serviceConfig = {
@@ -96,8 +95,7 @@ in
             echo "New changes detected, updating..."
             git pull --rebase --force
             mkdir -p .cache/nix
-            NIX_CACHE_HOME="/var/lib/useful-api/.cache/nix"
-            nix false build "/var/lib/useful-api#useful-api" -o "/var/lib/useful-api/result-new"
+            NIX_CACHE_HOME="/var/lib/useful-api/.cache/nix" nix build "/var/lib/useful-api#useful-api" -o "/var/lib/useful-api/result-new"
             # Atomically replace the old binary link
             mv -f "/var/lib/useful-api/result-new" "/var/lib/useful-api/result"
           else
