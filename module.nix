@@ -92,8 +92,12 @@ in
     };
     systemd.services.useful-api-restarter = {
       description = "Restart useful-api when the build result changes";
+      after = [ "useful-api-initial-setup.service" ];
+      wants = [ "useful-api-initial-setup.service" ];
+      wantedBy = [ "multi-user.target" ];
       serviceConfig = {
-        ExecStart = "systemctl restart useful-api.servive";
+        Type = "oneshot";
+        ExecStart = "systemctl restart useful-api";
       };
     };
 
