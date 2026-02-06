@@ -28,10 +28,6 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    systemd.tmpfiles.rules = [
-      "d ${cfg.dataDir} 0750 ${cfg.user} ${cfg.group} - -"
-    ];
-
     systemd.services.useful-api-initial-setup = {
       description = "Initial clone and build of useful-api";
       after = [ "network-online.target" ];
