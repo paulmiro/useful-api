@@ -53,9 +53,8 @@ in
         if [ ! -d "repo/.git" ]; then
           git clone "${cfg.repoUrl}" repo
         fi
-        cd repo
         if [ ! -e result ]; then
-          nix build ".#useful-api" -o result
+          nix build "repo#useful-api" -o result
         fi
       '';
       serviceConfig = {
