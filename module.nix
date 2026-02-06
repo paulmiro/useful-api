@@ -43,7 +43,10 @@ in
       serviceConfig = {
         Type = "oneshot";
         DynamicUser = true;
-        SupplementaryGroups = [ "nixbld" ];
+        SupplementaryGroups = [
+          "nixbld"
+          "nix-allowed-users"
+        ];
         WorkingDirectory = "/var/lib/useful-api";
         StateDirectory = "useful-api";
         RemainAfterExit = true;
@@ -88,7 +91,10 @@ in
         WorkingDirectory = "/var/lib/useful-api";
         StateDirectory = "useful-api";
         DynamicUser = true;
-        SupplementaryGroups = [ "nixbld" ];
+        SupplementaryGroups = [
+          "nixbld"
+          "nix-allowed-users"
+        ];
         ExecStart = pkgs.writeShellScript "useful-api-updater" ''
           set -euo pipefail
           cd "/var/lib/useful-api"
