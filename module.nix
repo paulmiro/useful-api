@@ -23,6 +23,20 @@ in
   };
 
   config = lib.mkIf cfg.enable {
+    users.users.useful-api = {
+      description = "useful-api user";
+      group = "useful-api";
+      isSystemUser = true;
+    };
+
+    users.groups.useful-api = { };
+
+    config.nix.settings.allowed-users = [ "useful-api" ];
+
+    systemd.tmpfiles.rules = [
+      "d /var/lib/useful-api 0750 useful-api useful-api - -"
+    ];
+
     systemd.services.useful-api-initial-setup = {
       description = "Initial clone and build of useful-api";
       after = [ "network-online.target" ];
@@ -36,17 +50,14 @@ in
           git clone "${cfg.repoUrl}" "/var/lib/useful-api/repo"
         fi
         if [ ! -e "/var/lib/useful-api/result" ]; then
-          mkdir -p .cache/nix
-          NIX_CACHE_HOME="/var/lib/useful-api/.cache/nix" nix build "/var/lib/useful-api/repo#useful-api" -o "/var/lib/useful-api/result"
+          export NIX_CACHE_HOME="/var/lib/useful-api/.cache/nix"
+          nix build "/var/lib/useful-api/repo#useful-api" -o "/var/lib/useful-api/result"
         fi
       '';
       serviceConfig = {
         Type = "oneshot";
-        DynamicUser = true;
-        SupplementaryGroups = [
-          "nixbld"
-          "nix-allowed-users"
-        ];
+        User = "useful-api";
+        Group = "useful-api";
         WorkingDirectory = "/var/lib/useful-api";
         StateDirectory = "useful-api";
         RemainAfterExit = true;
@@ -62,7 +73,8 @@ in
       serviceConfig = {
         ExecStart = "/var/lib/useful-api/result/bin/useful-api";
         Environment = [ "USEFUL_API_PORT=${toString cfg.port}" ];
-        DynamicUser = true;
+        User = "useful-api";
+        Group = "useful-api";
         Restart = "on-failure";
         WorkingDirectory = "/var/lib/useful-api";
         StateDirectory = "useful-api";
@@ -90,11 +102,8 @@ in
         Type = "oneshot";
         WorkingDirectory = "/var/lib/useful-api";
         StateDirectory = "useful-api";
-        DynamicUser = true;
-        SupplementaryGroups = [
-          "nixbld"
-          "nix-allowed-users"
-        ];
+        User = "useful-api";
+        Group = "useful-api";
         ExecStart = pkgs.writeShellScript "useful-api-updater" ''
           set -euo pipefail
           cd "/var/lib/useful-api"
@@ -102,8 +111,8 @@ in
           if [ "$(git rev-parse HEAD)" != "$(git rev-parse '@{u}')" ]; then
             echo "New changes detected, updating..."
             git pull --rebase --force
-            mkdir -p .cache/nix
-            NIX_CACHE_HOME="/var/lib/useful-api/.cache/nix" nix build "/var/lib/useful-api#useful-api" -o "/var/lib/useful-api/result-new"
+            export NIX_CACHE_HOME="/var/lib/useful-api/.cache/nix"
+            nix build "/var/lib/useful-api#useful-api" -o "/var/lib/useful-api/result-new"
             # Atomically replace the old binary link
             mv -f "/var/lib/useful-api/result-new" "/var/lib/useful-api/result"
           else
