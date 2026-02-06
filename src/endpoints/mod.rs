@@ -3,6 +3,7 @@ pub mod hello;
 pub mod mensabeer;
 pub mod mensatoshi;
 pub mod shark;
+pub mod teapot;
 
 use rocket::http::ContentType;
 use rocket::request::Request;
