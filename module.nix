@@ -34,7 +34,7 @@ in
 
     nix.settings = {
       allowed-users = [ "useful-api" ];
-      trusted-substituters = [ "https://useful-api.cachix.org" ];
+      trusted-substituters = [ "https://useful-api.cachix.org?priority=10" ];
       trusted-public-keys = [ "useful-api.cachix.org-1:vlsTmRlyPE64g57Ti+lBXwTHORQKRR2WmpcyGlv5LnI=" ];
     };
 
