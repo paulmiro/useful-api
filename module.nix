@@ -114,7 +114,6 @@ in
       ];
       environment = {
         "NIX_CACHE_HOME" = "/var/lib/useful-api/.cache/nix";
-        "NIX_CONFIG" = "accept-flake-config = true";
       };
       serviceConfig = {
         Type = "oneshot";
@@ -130,8 +129,6 @@ in
             git pull --rebase --force
             cd ..
             ${nixBuildCommand}
-            # Atomically replace the old binary link
-            mv -f -T result-new result
           else
             echo "Already up to date."
           fi
