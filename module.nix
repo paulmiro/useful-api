@@ -34,6 +34,8 @@ in
 
     nix.settings = {
       allowed-users = [ "useful-api" ];
+      trusted-substituters = [ "https://useful-api.cachix.org" ];
+      trusted-public-keys = [ "useful-api.cachix.org-1:vlsTmRlyPE64g57Ti+lBXwTHORQKRR2WmpcyGlv5LnI=" ];
     };
 
     systemd.tmpfiles.rules = [
