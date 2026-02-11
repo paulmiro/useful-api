@@ -2,8 +2,9 @@ use crate::endpoints::{ApiError, ApiResponse};
 use rocket::State;
 use rocket::serde::{Deserialize, Serialize};
 use rocket::tokio::sync::RwLock;
+use rocket_okapi::okapi::schemars;
+use rocket_okapi::okapi::schemars::JsonSchema;
 use rocket_okapi::openapi;
-use schemars::JsonSchema;
 use std::time::{Duration, Instant};
 
 #[derive(Clone)]

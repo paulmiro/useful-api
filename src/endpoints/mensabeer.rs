@@ -2,8 +2,9 @@ use crate::common::bitcoin::{Cache, get_price};
 use crate::common::constants::{CONGRESSBEER_SATOSHI, MENSA_EINTOPF_EUR};
 use crate::endpoints::ApiResponse;
 use rocket::State;
+use rocket_okapi::okapi::schemars;
+use rocket_okapi::okapi::schemars::JsonSchema;
 use rocket_okapi::openapi;
-use schemars::JsonSchema;
 use serde::Serialize;
 
 #[derive(Serialize, JsonSchema)]

@@ -1,6 +1,7 @@
 use crate::endpoints::ApiResponse;
+use rocket_okapi::okapi::schemars;
+use rocket_okapi::okapi::schemars::JsonSchema;
 use rocket_okapi::openapi;
-use schemars::JsonSchema;
 use serde::Serialize;
 
 #[derive(Serialize, JsonSchema)]

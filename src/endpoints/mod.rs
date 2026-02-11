@@ -12,8 +12,9 @@ use rocket::serde::json::Json;
 use rocket_okapi::OpenApiError;
 use rocket_okapi::r#gen::OpenApiGenerator;
 use rocket_okapi::okapi::openapi3::{MediaType, Response, Responses};
+use rocket_okapi::okapi::schemars;
+use rocket_okapi::okapi::schemars::JsonSchema;
 use rocket_okapi::response::OpenApiResponder;
-use schemars::JsonSchema;
 use serde::Serialize;
 use std::io::Cursor;
 
