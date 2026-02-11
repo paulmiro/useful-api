@@ -6,7 +6,7 @@
 }:
 let
   cfg = config.services.useful-api;
-  nixBuildCommand = ''nix --extra-experimental-features="nix-command flakes" --accept-flake-config build "./repo#useful-api" -o result'';
+  nixBuildCommand = ''nix --extra-experimental-features "nix-command flakes" --accept-flake-config build "./repo#useful-api" -o result'';
 in
 {
   options.services.useful-api = {
