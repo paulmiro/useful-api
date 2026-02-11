@@ -29,7 +29,7 @@ jobs:
         sudo systemctl restart nix-daemon
 
     - name: Set up Cachix
-      uses: cachix/cachix-action@v12
+      uses: cachix/cachix-action@v16
       with:
         name: useful-api
         signingKey: '${{ secrets.CACHIX_SIGNING_KEY }}'
