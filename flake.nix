@@ -5,6 +5,13 @@
     crane.url = "github:ipetkov/crane";
   };
 
+  nixConfig = {
+    extra-substituters = [ "https://useful-api.cachix.org?priority=10" ];
+    extra-trusted-public-keys = [
+      "useful-api.cachix.org-1:vlsTmRlyPE64g57Ti+lBXwTHORQKRR2WmpcyGlv5LnI="
+    ];
+  };
+
   outputs =
     { flake-parts, crane, ... }@inputs:
     flake-parts.lib.mkFlake { inherit inputs; } {
