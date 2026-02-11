@@ -6,6 +6,7 @@
 }:
 let
   cfg = config.services.useful-api;
+  nixBuildCommand = ''nix --extra-experimental-features="nix-command flakes" --accept-flake-config build "./repo#useful-api" -o result'';
 in
 {
   options.services.useful-api = {
@@ -33,8 +34,6 @@ in
 
     nix.settings = {
       allowed-users = [ "useful-api" ];
-      trusted-substituters = [ "https://useful-api.cachix.org" ];
-      trusted-public-keys = [ "useful-api.cachix.org-1:vlsTmRlyPE64g57Ti+lBXwTHORQKRR2WmpcyGlv5LnI=" ];
     };
 
     systemd.tmpfiles.rules = [
@@ -58,7 +57,7 @@ in
           git clone "${cfg.repoUrl}" repo
         fi
         if [ ! -e result ]; then
-          nix build "./repo#useful-api" -o result
+          ${nixBuildCommand}
         fi
       '';
       serviceConfig = {
@@ -113,6 +112,7 @@ in
       ];
       environment = {
         "NIX_CACHE_HOME" = "/var/lib/useful-api/.cache/nix";
+        "NIX_CONFIG" = "accept-flake-config = true";
       };
       serviceConfig = {
         Type = "oneshot";
@@ -127,7 +127,7 @@ in
             echo "New changes detected, updating..."
             git pull --rebase --force
             cd ..
-            nix build "./repo#useful-api" -o result-new
+            ${nixBuildCommand}
             # Atomically replace the old binary link
             mv -f -T result-new result
           else
