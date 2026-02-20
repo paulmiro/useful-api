@@ -163,12 +163,13 @@ The binary will be available in `./result/bin/useful-api`.
 
 ## 🧩 Technical Stack
 
-- **Framework:** [Rocket](https://rocket.rs/) (v0.5.1)
+- **Framework:** [Rocket](https://rocket.rs/) (v0.5.0)
 - **API Documentation:** [OpenAPI / Swagger UI](https://swagger.io/) via [rocket_okapi](https://github.com/GREsau/okapi)
 - **Schema Generation:** [schemars](https://github.com/GREsau/schemars)
 - **HTTP Client:** [reqwest](https://docs.rs/reqwest/) (v0.13)
 - **Serialization:** [serde](https://serde.rs/) & [serde_json](https://docs.rs/serde_json/)
 - **Runtime:** Tokio
+- **Rust Edition:** 2024
 - **Build System:** Cargo & Nix (via [Crane](https://github.com/ipetkov/crane))
 
 ## 📝 Notes
