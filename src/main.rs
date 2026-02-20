@@ -16,9 +16,14 @@ fn rocket() -> _ {
         .and_then(|p| p.parse().ok())
         .unwrap_or(3000);
 
+    let address = std::env::var("USEFUL_API_ADDRESS")
+        .ok()
+        .and_then(|h| h.parse().ok())
+        .unwrap_or("0.0.0.0".to_owned());
+
     let config = rocket::Config::figment()
         .merge(("port", port))
-        .merge(("address", "0.0.0.0"));
+        .merge(("address", address));
 
     rocket::custom(config)
         .manage(RwLock::new(None::<common::bitcoin::BitcoinPriceCache>))

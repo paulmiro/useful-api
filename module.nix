@@ -21,6 +21,11 @@ in
       default = 3000;
       description = "Port to listen on.";
     };
+    bindAddress = lib.mkOption {
+      type = lib.types.str;
+      default = "0.0.0.0";
+      description = "Address to bind to.";
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -79,7 +84,10 @@ in
       wantedBy = [ "multi-user.target" ];
       serviceConfig = {
         ExecStart = "/var/lib/useful-api/result/bin/useful-api";
-        Environment = [ "USEFUL_API_PORT=${toString cfg.port}" ];
+        Environment = [
+          "USEFUL_API_PORT=${toString cfg.port}"
+          "USEFUL_API_ADDRESS=${cfg.bindAddress}"
+        ];
         User = "useful-api";
         Group = "useful-api";
         Restart = "on-failure";
