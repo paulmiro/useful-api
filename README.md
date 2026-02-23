@@ -77,6 +77,20 @@ Checks the stock of "beeghaj" (large Blåhaj), "smolhaj" (small Blåhaj), and "w
 
 ---
 
+### 🧺 [Aldi-Towels Endpoint](https://useful-api.party/alditowels)
+
+**GET** `/alditowels`
+
+Checks if Aldi Süd currently has towels in their weekly special offers. It scrapes the Aldi website to find available products and upcoming deals.
+
+**Features:**
+- 🧺 Scrapes Aldi Süd's search results for "Handtuch" and "Handtücher"
+- 📅 Intelligently parses availability dates to distinguish between current and future deals
+- ⚡ Caches results for 10 minutes to avoid redundant scraping
+- 🔍 Provides specific product names and availability timeframes in the response
+
+---
+
 ### 🍺 [Congress-Beer Endpoint](https://useful-api.party/congressbeer)
 
 **GET** `/congressbeer?satoshi=<amount>`
@@ -163,10 +177,12 @@ The binary will be available in `./result/bin/useful-api`.
 
 ## 🧩 Technical Stack
 
-- **Framework:** [Rocket](https://rocket.rs/) (v0.5.0)
+- **Framework:** [Rocket](https://rocket.rs/)
 - **API Documentation:** [OpenAPI / Swagger UI](https://swagger.io/) via [rocket_okapi](https://github.com/GREsau/okapi)
 - **Schema Generation:** [schemars](https://github.com/GREsau/schemars)
-- **HTTP Client:** [reqwest](https://docs.rs/reqwest/) (v0.13)
+- **HTTP Client:** [reqwest](https://docs.rs/reqwest/)
+- **HTML Parsing:** [scraper](https://docs.rs/scraper/)
+- **Date & Time:** [chrono](https://docs.rs/chrono/)
 - **Serialization:** [serde](https://serde.rs/) & [serde_json](https://docs.rs/serde_json/)
 - **Runtime:** Tokio
 - **Rust Edition:** 2024

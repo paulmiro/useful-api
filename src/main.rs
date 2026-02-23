@@ -28,10 +28,12 @@ fn rocket() -> _ {
     rocket::custom(config)
         .manage(RwLock::new(None::<common::bitcoin::BitcoinPriceCache>))
         .manage(RwLock::new(None::<endpoints::shark::SharkCache>))
+        .manage(RwLock::new(None::<endpoints::alditowels::AldiTowelCache>))
         .mount(
             "/",
             openapi_get_routes![
                 endpoints::hello::hello,
+                endpoints::alditowels::alditowels,
                 endpoints::mensatoshi::mensatoshi,
                 endpoints::congressbeer::congressbeer,
                 endpoints::shark::shark,
