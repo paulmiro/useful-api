@@ -6,7 +6,7 @@
 }:
 let
   cfg = config.services.useful-api;
-  nixBuildCommand = ''nix --extra-experimental-features "nix-command flakes" --accept-flake-config build "./repo#useful-api" -o result'';
+  nixBuildCommand = ''nix --extra-experimental-features "nix-command flakes" --accept-flake-config build "./repo#useful-api" -o result-new'';
 in
 {
   options.services.useful-api = {
@@ -65,6 +65,7 @@ in
         fi
         if [ ! -e result ]; then
           ${nixBuildCommand}
+          mv -f result-new result
         fi
       '';
       serviceConfig = {
@@ -137,6 +138,7 @@ in
             git pull --rebase --force
             cd ..
             ${nixBuildCommand}
+            mv -f result-new result
           else
             echo "Already up to date."
           fi
