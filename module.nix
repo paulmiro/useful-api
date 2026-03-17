@@ -6,7 +6,7 @@
 }:
 let
   cfg = config.services.useful-api;
-  nixBuildCommand = ''nix --extra-experimental-features "nix-command flakes" --accept-flake-config build "./repo#useful-api" -o result-new'';
+  nixBuildCommand = ''nix --extra-experimental-features "nix-command flakes" --accept-flake-config build "./repo#useful-api" -o result'';
 in
 {
   options.services.useful-api = {
@@ -70,12 +70,19 @@ in
         ExecStart = pkgs.writeShellScript "useful-api-initial-setup" ''
           set -euo pipefail
           if [ ! -d "repo/.git" ]; then
+            echo "Cloning ${cfg.repoUrl} into repo..."
             git clone "${cfg.repoUrl}" repo
+          else
+            echo "Repo already cloned."
           fi
           if [ ! -e result ]; then
+            echo "Building..."
             ${nixBuildCommand}
-            mv -f -T result-new result
+            echo "Building done."
+          else
+            echo "Result already built."
           fi
+          echo "Done."
         '';
       };
     };
@@ -99,23 +106,14 @@ in
       };
     };
 
-    systemd.paths."useful-api-restarter" = {
-      description = "Watch for changes in the useful-api build result";
-      wantedBy = [ "multi-user.target" ];
-      pathConfig = {
-        PathChanged = "/var/lib/useful-api/result";
-      };
-    };
     systemd.services.useful-api-restarter = {
       description = "Restart useful-api when the build result changes";
-      after = [ "useful-api-initial-setup.service" ];
       wants = [ "useful-api-initial-setup.service" ];
-      wantedBy = [ "multi-user.target" ];
       serviceConfig = {
         Type = "oneshot";
         ExecStart = pkgs.writeShellScript "useful-api-restarter" ''
           set -euo pipefail
-          echo "Path changed. Restarting useful-api..."
+          echo "Restarting useful-api..."
           systemctl restart useful-api
           echo "Done."
         '';
@@ -124,6 +122,7 @@ in
 
     systemd.services.useful-api-updater = {
       description = "Update useful-api git repository and rebuild";
+      wants = [ "useful-api-initial-setup.service" ];
       path = [
         pkgs.git
         pkgs.nix
@@ -146,13 +145,13 @@ in
             cd ..
             echo "Building..."
             ${nixBuildCommand}
-            echo "Updating..."
-            mv -f -T result-new result
             echo "Done."
           else
             echo "Already up to date."
+            exit 1
           fi
         '';
+        OnSuccess = "useful-api-restarter.service";
       };
     };
 
