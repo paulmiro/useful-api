@@ -1,4 +1,4 @@
-use crate::endpoints::{ApiError, ApiResponse};
+use crate::endpoints::{ApiData, ApiError, ApiResponse, ResponseFormat, UserAgent};
 use chrono::{Datelike, Local};
 use rocket::State;
 use rocket::tokio::sync::RwLock;
@@ -23,6 +23,12 @@ pub struct AldiTowelData {
     pub message: String,
     pub availability: Vec<String>,
     pub products: Vec<Product>,
+}
+
+impl ApiData for AldiTowelData {
+    fn message(&self) -> &str {
+        &self.message
+    }
 }
 
 #[derive(Clone)]
@@ -302,7 +308,7 @@ async fn get_aldi_towel_data() -> Result<AldiTowelData, ApiError> {
             let product_lines: Vec<String> = products
                 .iter()
                 .map(|p| match &p.link {
-                    Some(link) => format!("- {}: {}", p.name, link),
+                    Some(link) => format!("- [{}]({})", p.name, link),
                     None => format!("- {}", p.name),
                 })
                 .collect();
@@ -338,18 +344,16 @@ async fn get_aldi_towel_data() -> Result<AldiTowelData, ApiError> {
 #[openapi(tag = "Scraping")]
 #[get("/alditowels?<format>")]
 pub async fn alditowels(
+    ua: UserAgent,
     cache_state: &State<Cache>,
     format: Option<String>,
 ) -> ApiResponse<AldiTowelData> {
+    let format = ResponseFormat::detect(&ua, format);
     {
         let cache = cache_state.read().await;
         if let Some(c) = &*cache {
             if c.time.elapsed() < Duration::from_secs(600) {
-                let data = c.data.clone();
-                return match format.as_deref() {
-                    Some("json") => ApiResponse::Json(data),
-                    _ => ApiResponse::Plain(data.message),
-                };
+                return ApiResponse::Ok(c.data.clone(), format);
             }
         }
     }
@@ -365,8 +369,5 @@ pub async fn alditowels(
         time: Instant::now(),
     });
 
-    match format.as_deref() {
-        Some("json") => ApiResponse::Json(data),
-        _ => ApiResponse::Plain(data.message),
-    }
+    ApiResponse::Ok(data, format)
 }

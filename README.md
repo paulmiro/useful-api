@@ -106,9 +106,9 @@ Calculates how many Congress-Beers a given amount of satoshi could have been, wh
 
 ---
 
-### 🧀🫙 [Mensa-Gorgonzola Endpoint](https://useful-api.party/mensa-gorgonzola)
+### 🧀🫙 [Mensa-Gorgonzola Endpoint](https://useful-api.party/mensagorgonzola)
 
-**GET** `/mensa-gorgonzola`
+**GET** `/mensagorgonzola`
 
 Answers the most important question of the day: is there Gorgonzola at the Mensa? 🧀 Checks today's (or tomorrow's, if it's past 14:00) menu at CAMPO and returns whether the beloved blue cheese 🫙 is being served.
 
@@ -116,7 +116,6 @@ Answers the most important question of the day: is there Gorgonzola at the Mensa
 - 🧀 Fetches the current or next day's Mensa menu from the OpenMensa API
 - 🕒 Automatically looks ahead to tomorrow's menu after 14:00
 - 🫙 Detects the presence of Gorgonzola with laser-sharp string matching
-- 🍽️ Returns a plain `true`/`false` by default, or full JSON with `?format=json`
 - 🧀🧀🧀 It's all about the cheese
 
 ---
@@ -197,6 +196,7 @@ The binary will be available in `./result/bin/useful-api`.
 - **Schema Generation:** [schemars](https://github.com/GREsau/schemars)
 - **HTTP Client:** [reqwest](https://docs.rs/reqwest/)
 - **HTML Parsing:** [scraper](https://docs.rs/scraper/)
+- **Markdown Parsing:** [pulldown-cmark](https://github.com/pulldown-cmark/pulldown-cmark)
 - **Date & Time:** [chrono](https://docs.rs/chrono/)
 - **Serialization:** [serde](https://serde.rs/) & [serde_json](https://docs.rs/serde_json/)
 - **Runtime:** Tokio
@@ -208,7 +208,9 @@ The binary will be available in `./result/bin/useful-api`.
 - Interactive API documentation is served at [`/swagger-ui/`](https://useful-api.party/swagger-ui/).
 - The API uses Rocket's managed state and `RwLock` for caching data.
 - CoinGecko API rate limits are handled gracefully.
-- Endpoints support both plain text and JSON responses (via `?format=json`).
+- Endpoints support JSON (`?format=json`), plain text (`?format=plaintext`), and beautiful HTML (`?format=html`).
+- The API automatically detects the best format based on the User-Agent (Browsers get HTML, CLI tools get plain text).
+- HTML responses are dark-themed, responsive, and rendered from Markdown.
 - The server's bind address is configurable via the `USEFUL_API_ADDRESS` environment variable. Defaults to `0.0.0.0`.
 - The server's port is configurable via the `USEFUL_API_PORT` environment variable. Defaults to `3000`.
 

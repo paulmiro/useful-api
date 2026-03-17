@@ -1,4 +1,4 @@
-use crate::endpoints::ApiResponse;
+use crate::endpoints::{ApiData, ApiResponse, ResponseFormat, UserAgent};
 use rocket_okapi::okapi::schemars;
 use rocket_okapi::okapi::schemars::JsonSchema;
 use rocket_okapi::openapi;
@@ -6,17 +6,22 @@ use serde::Serialize;
 
 #[derive(Serialize, JsonSchema)]
 pub struct HelloData {
-    message: String,
+    pub message: String,
+}
+
+impl ApiData for HelloData {
+    fn message(&self) -> &str {
+        &self.message
+    }
 }
 
 #[openapi(tag = "Hello")]
 #[get("/?<format>")]
-pub fn hello(format: Option<String>) -> ApiResponse<HelloData> {
+pub fn hello(ua: UserAgent, format: Option<String>) -> ApiResponse<HelloData> {
     let msg = "Hello, World!";
-    match format.as_deref() {
-        Some("json") => ApiResponse::Json(HelloData {
-            message: msg.to_string(),
-        }),
-        _ => ApiResponse::Plain(msg.to_string()),
-    }
+    let data = HelloData {
+        message: msg.to_string(),
+    };
+    let format = ResponseFormat::detect(&ua, format);
+    ApiResponse::Ok(data, format)
 }
