@@ -39,7 +39,8 @@ fn rocket() -> _ {
                 endpoints::congressbeer::congressbeer,
                 endpoints::shark::shark,
                 endpoints::mensabeer::mensabeer,
-                endpoints::teapot::teapot
+                endpoints::teapot::teapot,
+                endpoints::random::random
             ],
         )
         .mount(
