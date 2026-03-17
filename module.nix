@@ -59,15 +59,6 @@ in
       environment = {
         "NIX_CACHE_HOME" = "/var/lib/useful-api/.cache/nix";
       };
-      script = ''
-        if [ ! -d "repo/.git" ]; then
-          git clone "${cfg.repoUrl}" repo
-        fi
-        if [ ! -e result ]; then
-          ${nixBuildCommand}
-          mv -f -T result-new result
-        fi
-      '';
       serviceConfig = {
         Type = "oneshot";
         User = "useful-api";
@@ -75,6 +66,17 @@ in
         WorkingDirectory = "/var/lib/useful-api";
         StateDirectory = "useful-api";
         RemainAfterExit = true;
+
+        ExecStart = pkgs.writeShellScript "useful-api-initial-setup" ''
+          set -euo pipefail
+          if [ ! -d "repo/.git" ]; then
+            git clone "${cfg.repoUrl}" repo
+          fi
+          if [ ! -e result ]; then
+            ${nixBuildCommand}
+            mv -f -T result-new result
+          fi
+        '';
       };
     };
 
@@ -111,7 +113,12 @@ in
       wantedBy = [ "multi-user.target" ];
       serviceConfig = {
         Type = "oneshot";
-        ExecStart = "systemctl restart useful-api";
+        ExecStart = pkgs.writeShellScript "useful-api-restarter" ''
+          set -euo pipefail
+          echo "Path changed. Restarting useful-api..."
+          systemctl restart useful-api
+          echo "Done."
+        '';
       };
     };
 
@@ -137,8 +144,11 @@ in
             echo "New changes detected, updating..."
             git pull --rebase --force
             cd ..
+            echo "Building..."
             ${nixBuildCommand}
+            echo "Updating..."
             mv -f -T result-new result
+            echo "Done."
           else
             echo "Already up to date."
           fi
