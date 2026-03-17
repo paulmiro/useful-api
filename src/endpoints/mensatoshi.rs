@@ -1,6 +1,6 @@
 use crate::common::bitcoin::{Cache, get_price};
 use crate::common::constants::MENSA_EINTOPF_EUR;
-use crate::endpoints::ApiResponse;
+use crate::endpoints::{ApiData, ApiResponse, ResponseFormat, UserAgent};
 use rocket::State;
 use rocket_okapi::okapi::schemars;
 use rocket_okapi::okapi::schemars::JsonSchema;
@@ -9,13 +9,20 @@ use serde::Serialize;
 
 #[derive(Serialize, JsonSchema)]
 pub struct MensaSatoshiData {
-    satoshi: f64,
-    message: String,
+    pub satoshi: f64,
+    pub message: String,
+}
+
+impl ApiData for MensaSatoshiData {
+    fn message(&self) -> &str {
+        &self.message
+    }
 }
 
 #[openapi(tag = "Conversion")]
 #[get("/mensatoshi?<format>")]
 pub async fn mensatoshi(
+    ua: UserAgent,
     cache_state: &State<Cache>,
     format: Option<String>,
 ) -> ApiResponse<MensaSatoshiData> {
@@ -32,11 +39,12 @@ pub async fn mensatoshi(
         rounded_satoshi
     );
 
-    match format.as_deref() {
-        Some("json") => ApiResponse::Json(MensaSatoshiData {
+    let format = ResponseFormat::detect(&ua, format);
+    ApiResponse::Ok(
+        MensaSatoshiData {
             satoshi: rounded_satoshi,
             message,
-        }),
-        _ => ApiResponse::Plain(message),
-    }
+        },
+        format,
+    )
 }

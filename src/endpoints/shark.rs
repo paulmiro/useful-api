@@ -1,4 +1,4 @@
-use crate::endpoints::{ApiError, ApiResponse};
+use crate::endpoints::{ApiData, ApiError, ApiResponse, ResponseFormat, UserAgent};
 use rocket::State;
 use rocket::serde::{Deserialize, Serialize};
 use rocket::tokio::sync::RwLock;
@@ -17,10 +17,16 @@ pub type Cache = RwLock<Option<SharkCache>>;
 
 #[derive(Serialize, Clone, JsonSchema)]
 pub struct SharkData {
-    beeghaj: i32,
-    smolhaj: i32,
-    whale: i32,
-    message: String,
+    pub beeghaj: i32,
+    pub smolhaj: i32,
+    pub whale: i32,
+    pub message: String,
+}
+
+impl ApiData for SharkData {
+    fn message(&self) -> &str {
+        &self.message
+    }
 }
 
 #[derive(Deserialize)]
@@ -174,14 +180,16 @@ async fn get_shark_data(cache_state: &State<Cache>) -> Result<SharkData, ApiErro
 
 #[openapi(tag = "Shark")]
 #[get("/shark?<format>")]
-pub async fn shark(cache_state: &State<Cache>, format: Option<String>) -> ApiResponse<SharkData> {
+pub async fn shark(
+    ua: UserAgent,
+    cache_state: &State<Cache>,
+    format: Option<String>,
+) -> ApiResponse<SharkData> {
+    let format = ResponseFormat::detect(&ua, format);
     let data = match get_shark_data(cache_state).await {
         Ok(data) => data,
         Err(e) => return ApiResponse::Error(e),
     };
 
-    match format.as_deref() {
-        Some("json") => ApiResponse::Json(data),
-        _ => ApiResponse::Plain(data.message),
-    }
+    ApiResponse::Ok(data, format)
 }

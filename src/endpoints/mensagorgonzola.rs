@@ -1,4 +1,4 @@
-use crate::endpoints::{ApiError, ApiResponse};
+use crate::endpoints::{ApiData, ApiError, ApiResponse, ResponseFormat, UserAgent};
 use chrono::{Duration, Local, Timelike};
 use rocket_okapi::okapi::schemars;
 use rocket_okapi::okapi::schemars::JsonSchema;
@@ -9,6 +9,12 @@ use serde::Serialize;
 pub struct GorgonzolaData {
     pub has_gorgonzola: bool,
     pub message: String,
+}
+
+impl ApiData for GorgonzolaData {
+    fn message(&self) -> &str {
+        &self.message
+    }
 }
 
 async fn fetch_gorgonzola() -> Result<GorgonzolaData, ApiError> {
@@ -52,12 +58,10 @@ async fn fetch_gorgonzola() -> Result<GorgonzolaData, ApiError> {
 
 #[openapi(tag = "Mensa")]
 #[get("/mensagorgonzola?<format>")]
-pub async fn mensagorgonzola(format: Option<String>) -> ApiResponse<GorgonzolaData> {
+pub async fn mensagorgonzola(ua: UserAgent, format: Option<String>) -> ApiResponse<GorgonzolaData> {
+    let format = ResponseFormat::detect(&ua, format);
     match fetch_gorgonzola().await {
-        Ok(data) => match format.as_deref() {
-            Some("json") => ApiResponse::Json(data),
-            _ => ApiResponse::Plain(data.message),
-        },
+        Ok(data) => ApiResponse::Ok(data, format),
         Err(e) => ApiResponse::Error(e),
     }
 }

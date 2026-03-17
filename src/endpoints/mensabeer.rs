@@ -1,6 +1,6 @@
 use crate::common::bitcoin::{Cache, get_price};
 use crate::common::constants::{CONGRESSBEER_SATOSHI, MENSA_EINTOPF_EUR};
-use crate::endpoints::ApiResponse;
+use crate::endpoints::{ApiData, ApiResponse, ResponseFormat, UserAgent};
 use rocket::State;
 use rocket_okapi::okapi::schemars;
 use rocket_okapi::okapi::schemars::JsonSchema;
@@ -9,13 +9,20 @@ use serde::Serialize;
 
 #[derive(Serialize, JsonSchema)]
 pub struct MensaBeerData {
-    beers: f64,
-    message: String,
+    pub beers: f64,
+    pub message: String,
+}
+
+impl ApiData for MensaBeerData {
+    fn message(&self) -> &str {
+        &self.message
+    }
 }
 
 #[openapi(tag = "Conversion")]
 #[get("/mensabeer?<format>")]
 pub async fn mensabeer(
+    ua: UserAgent,
     cache_state: &State<Cache>,
     format: Option<String>,
 ) -> ApiResponse<MensaBeerData> {
@@ -33,8 +40,6 @@ pub async fn mensabeer(
         beers
     );
 
-    match format.as_deref() {
-        Some("json") => ApiResponse::Json(MensaBeerData { beers, message }),
-        _ => ApiResponse::Plain(message),
-    }
+    let format = ResponseFormat::detect(&ua, format);
+    ApiResponse::Ok(MensaBeerData { beers, message }, format)
 }
