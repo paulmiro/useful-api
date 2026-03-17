@@ -79,7 +79,14 @@ fn is_future_date(date_str: &str) -> bool {
 }
 
 async fn get_aldi_towel_data() -> Result<AldiTowelData, ApiError> {
-    let queries = vec!["handt%C3%BCcher", "handtuch"];
+    let queries = vec![
+        "handtuch",
+        "handt%C3%BCcher",
+        "duschtuch",
+        "duscht%C3%BCcher",
+        "badetuch",
+        "badet%C3%BCcher",
+    ];
     let mut bodies = Vec::new();
 
     for query in queries {
@@ -105,6 +112,24 @@ async fn get_aldi_towel_data() -> Result<AldiTowelData, ApiError> {
         Selector::parse(".product-tile__availability, .availability-label, .badge--availability")
             .unwrap();
 
+    let keywords = [
+        "handtuch",
+        "handtücher",
+        "duschtuch",
+        "duschtücher",
+        "badetuch",
+        "badetücher",
+        "saunatuch",
+        "saunatücher",
+        "gästetuch",
+        "gästetücher",
+        "strandtuch",
+        "strandtücher",
+        "waschhandschuh",
+        "waschhandschuhe",
+        "frottier",
+    ];
+
     for body in bodies {
         let document = Html::parse_document(&body);
 
@@ -119,7 +144,7 @@ async fn get_aldi_towel_data() -> Result<AldiTowelData, ApiError> {
                     .trim()
                     .to_string();
                 let name_lower = name.to_lowercase();
-                if name_lower.contains("handtuch") || name_lower.contains("handtücher") {
+                if keywords.iter().any(|&k| name_lower.contains(k)) {
                     product_names.insert(name);
                     has_products = true;
                     name_found = true;
@@ -144,22 +169,34 @@ async fn get_aldi_towel_data() -> Result<AldiTowelData, ApiError> {
 
         // Fallback: If no structured tiles found, use the old string-based approach but cleaner
         if !has_products {
-            for term in ["Handtuch", "Handtücher"] {
-                let mut search_pos = 0;
-                while let Some(start_idx) = body[search_pos..].find(term) {
-                    let absolute_start = search_pos + start_idx;
-                    let sub = &body[absolute_start..];
-                    let end_idx = sub
-                        .find(|c: char| {
-                            !c.is_alphanumeric() && c != ' ' && c != ',' && c != '-' && c != '.'
-                        })
-                        .unwrap_or(40);
-                    let name = sub[..end_idx].trim().trim_end_matches([',', '.']).trim();
-                    if name.len() > 8 && name.len() < 100 {
-                        product_names.insert(name.to_string());
-                        has_products = true;
+            for term in keywords {
+                // Capitalize first letter for fallback search if needed, but Aldi search is often case insensitive in HTML
+                // We search for both lowercase and title case just in case
+                let search_terms = [term.to_string(), {
+                    let mut c = term.chars();
+                    match c.next() {
+                        None => String::new(),
+                        Some(f) => f.to_uppercase().collect::<String>() + c.as_str(),
                     }
-                    search_pos = absolute_start + end_idx.max(1);
+                }];
+
+                for s_term in search_terms {
+                    let mut search_pos = 0;
+                    while let Some(start_idx) = body[search_pos..].find(&s_term) {
+                        let absolute_start = search_pos + start_idx;
+                        let sub = &body[absolute_start..];
+                        let end_idx = sub
+                            .find(|c: char| {
+                                !c.is_alphanumeric() && c != ' ' && c != ',' && c != '-' && c != '.'
+                            })
+                            .unwrap_or(40);
+                        let name = sub[..end_idx].trim().trim_end_matches([',', '.']).trim();
+                        if name.len() > 5 && name.len() < 100 {
+                            product_names.insert(name.to_string());
+                            has_products = true;
+                        }
+                        search_pos = absolute_start + end_idx.max(1);
+                    }
                 }
             }
 
