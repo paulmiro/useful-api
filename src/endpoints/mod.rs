@@ -2,6 +2,7 @@ pub mod alditowels;
 pub mod congressbeer;
 pub mod hello;
 pub mod mensabeer;
+pub mod mensagorgonzola;
 pub mod mensatoshi;
 pub mod shark;
 pub mod teapot;

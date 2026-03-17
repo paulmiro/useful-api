@@ -106,6 +106,21 @@ Calculates how many Congress-Beers a given amount of satoshi could have been, wh
 
 ---
 
+### 🧀🫙 [Mensa-Gorgonzola Endpoint](https://useful-api.party/mensa-gorgonzola)
+
+**GET** `/mensa-gorgonzola`
+
+Answers the most important question of the day: is there Gorgonzola at the Mensa? 🧀 Checks today's (or tomorrow's, if it's past 14:00) menu at CAMPO and returns whether the beloved blue cheese 🫙 is being served.
+
+**Features:**
+- 🧀 Fetches the current or next day's Mensa menu from the OpenMensa API
+- 🕒 Automatically looks ahead to tomorrow's menu after 14:00
+- 🫙 Detects the presence of Gorgonzola with laser-sharp string matching
+- 🍽️ Returns a plain `true`/`false` by default, or full JSON with `?format=json`
+- 🧀🧀🧀 It's all about the cheese
+
+---
+
 ### 🥘🍺 [Mensa-Beer Endpoint](https://useful-api.party/mensabeer)
 
 **GET** `/mensabeer`

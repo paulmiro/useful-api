@@ -34,6 +34,7 @@ fn rocket() -> _ {
             openapi_get_routes![
                 endpoints::hello::hello,
                 endpoints::alditowels::alditowels,
+                endpoints::mensagorgonzola::mensa_gorgonzola,
                 endpoints::mensatoshi::mensatoshi,
                 endpoints::congressbeer::congressbeer,
                 endpoints::shark::shark,
