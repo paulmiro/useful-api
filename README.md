@@ -51,16 +51,16 @@ Returns a `418 I'm a teapot` status code.
 
 ---
 
-### 🍲 [Mensa Satoshi Endpoint](https://useful-api.party/mensatoshi)
+### 🍲📈💎 [Mensa Satoshi Endpoint](https://useful-api.party/mensatoshi)
 
 **GET** `/mensatoshi`
 
-Calculates how many satoshi a Mensa meal costs based on current Bitcoin prices. The price is cached for 10 seconds to avoid rate limiting.
+Calculates how many satoshi a Mensa meal costs based on current Bitcoin prices. The price is cached for 10 seconds to avoid rate limiting. 📈
 
 **Features:**
-- 💰 Fetches real-time Bitcoin prices from CoinGecko API
+- 💰📈 Fetches real-time Bitcoin prices from CoinGecko API
 - ⚡ Caches results for 10 seconds to optimize performance
-- 🍽️ Uses a fixed Mensa price of €1.20 (TODO: fetch dynamically)
+- 🍽️💎🙌 Uses a fixed Mensa price of €1.20 (TODO: fetch dynamically)
 
 ---
 
@@ -91,18 +91,16 @@ Checks if Aldi Süd currently has towels in their weekly special offers. It scra
 
 ---
 
-### 🍺 [Congress-Beer Endpoint](https://useful-api.party/congressbeer)
+### 🍺📈💎🙌 [Congress-Beer Endpoint](https://useful-api.party/congressbeer)
 
 **GET** `/congressbeer?satoshi=<amount>`
 
-Calculates how many Congress-Beers a given amount of satoshi could have been, where **1 Congress-Beer = 69 satoshi**. The result is rounded down to the nearest integer.
-
-
+Calculates how many Congress-Beers a given amount of satoshi could have been, where **1 Congress-Beer = 69 satoshi**. The result is rounded down to the nearest integer. 💎🙌📈
 
 **Features:**
-- 🍺 Calculates Congress-Beers based on the legendary 69 satoshi per beer rate
-- 🔢 Returns integer values only (rounded down)
-- 📊 Simple and efficient calculation
+- 🍺📈 Calculates Congress-Beers based on the legendary 69 satoshi per beer rate
+- 🔢💎 Returns integer values only (rounded down) — diamond hands don't do fractions
+- 📊📈📈📈 Simple and efficient calculation, stonks only go up
 
 ---
 
@@ -121,16 +119,31 @@ Answers the most important question of the day: is there Gorgonzola at the Mensa
 
 ---
 
-### 🥘🍺 [Mensa-Beer Endpoint](https://useful-api.party/mensabeer)
+### 🎲💎🙌📈 [Random Endpoint](https://useful-api.party/random)
+
+**GET** `/random`
+
+Returns a random selection of 1–3 endpoints from this API, because sometimes you just need inspiration. 📈💎🙌
+
+**Features:**
+- 🎲 Picks a random subset of available endpoints on every request
+- 📋 Returns each endpoint's path and description
+- 🚫 Excludes endpoints that require meaningful user input (e.g. `/congressbeer`)
+- 💎🙌 Diamond hands only — we never return the same endpoints twice in a row (actually we might, but we hold anyway)
+- 📈📈📈 Stonks always go up
+
+---
+
+### 🥘🍺📈💎🙌 [Mensa-Beer Endpoint](https://useful-api.party/mensabeer)
 
 **GET** `/mensabeer`
 
-Calculates how many Congress-Beers you could buy for the price of one Mensa meal, based on the current Bitcoin exchange rate.
+Calculates how many Congress-Beers you could buy for the price of one Mensa meal, based on the current Bitcoin exchange rate. 📈💎🙌
 
 **Features:**
-- 🔄 Combines real-time Bitcoin data with Mensa and Congress metrics.
-- 🍺 Shows the purchasing power of a Mensa meal in the most important currency: Congress-Beer.
-- 🍽️ Uses the same fixed Mensa price (€1.20) as the Mensa Satoshi endpoint.
+- 🔄📈 Combines real-time Bitcoin data with Mensa and Congress metrics.
+- 🍺💎🙌 Shows the purchasing power of a Mensa meal in the most important currency: Congress-Beer.
+- 🍽️📈📈 Uses the same fixed Mensa price (€1.20) as the Mensa Satoshi endpoint. Stonks.
 
 ---
 
@@ -198,6 +211,7 @@ The binary will be available in `./result/bin/useful-api`.
 - **HTTP Client:** [reqwest](https://docs.rs/reqwest/)
 - **HTML Parsing:** [scraper](https://docs.rs/scraper/)
 - **Date & Time:** [chrono](https://docs.rs/chrono/)
+- **Randomness:** [rand](https://docs.rs/rand/)
 - **Serialization:** [serde](https://serde.rs/) & [serde_json](https://docs.rs/serde_json/)
 - **Runtime:** Tokio
 - **Rust Edition:** 2024
