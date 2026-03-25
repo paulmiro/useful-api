@@ -1,6 +1,6 @@
+use crate::api::{ApiData, ApiResponse, ResponseFormat, UserAgent};
 use crate::common::bitcoin::{Cache, get_price};
 use crate::common::constants::MENSA_EINTOPF_EUR;
-use crate::endpoints::{ApiData, ApiResponse, ResponseFormat, UserAgent};
 use rocket::State;
 use rocket_okapi::okapi::schemars;
 use rocket_okapi::okapi::schemars::JsonSchema;
@@ -34,10 +34,7 @@ pub async fn mensatoshi(
 
     let mensasatoshi = MENSA_EINTOPF_EUR * satoshi_per_eur;
     let rounded_satoshi = mensasatoshi.round();
-    let message = format!(
-        "Der Mensa-Eintopf kostet aktuell {} Satoshi.",
-        rounded_satoshi
-    );
+    let message = format!("Der Mensa-Eintopf kostet aktuell **{rounded_satoshi}** Satoshi.",);
 
     let format = ResponseFormat::detect(&ua, format);
     ApiResponse::Ok(

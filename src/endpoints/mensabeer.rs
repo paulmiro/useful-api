@@ -1,6 +1,6 @@
+use crate::api::{ApiData, ApiResponse, ResponseFormat, UserAgent};
 use crate::common::bitcoin::{Cache, get_price};
 use crate::common::constants::{CONGRESSBEER_SATOSHI, MENSA_EINTOPF_EUR};
-use crate::endpoints::{ApiData, ApiResponse, ResponseFormat, UserAgent};
 use rocket::State;
 use rocket_okapi::okapi::schemars;
 use rocket_okapi::okapi::schemars::JsonSchema;
@@ -36,8 +36,7 @@ pub async fn mensabeer(
     let beers = (mensa_satoshi / CONGRESSBEER_SATOSHI).floor();
 
     let message = format!(
-        "Für den Preis eines Mensa-Eintopfs bekommt man aktuell {} Bier auf dem Congress.",
-        beers
+        "Für den Preis eines Mensa-Eintopfs bekommt man aktuell **{beers}** Bier auf dem Congress!",
     );
 
     let format = ResponseFormat::detect(&ua, format);

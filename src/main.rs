@@ -6,8 +6,10 @@ extern crate rocket_okapi;
 use rocket::tokio::sync::RwLock;
 use rocket_okapi::swagger_ui::*;
 
+mod api;
 mod common;
 mod endpoints;
+mod rendering;
 
 #[launch]
 fn rocket() -> _ {
@@ -32,6 +34,7 @@ fn rocket() -> _ {
         .mount(
             "/",
             openapi_get_routes![
+                endpoints::root::root,
                 endpoints::hello::hello,
                 endpoints::alditowels::alditowels,
                 endpoints::mensagorgonzola::mensagorgonzola,

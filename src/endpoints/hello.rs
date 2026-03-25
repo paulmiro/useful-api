@@ -1,4 +1,4 @@
-use crate::endpoints::{ApiData, ApiResponse, ResponseFormat, UserAgent};
+use crate::api::{ApiData, ApiResponse, ResponseFormat, UserAgent};
 use rocket_okapi::okapi::schemars;
 use rocket_okapi::okapi::schemars::JsonSchema;
 use rocket_okapi::openapi;
@@ -16,9 +16,9 @@ impl ApiData for HelloData {
 }
 
 #[openapi(tag = "Hello")]
-#[get("/?<format>")]
+#[get("/hello?<format>")]
 pub fn hello(ua: UserAgent, format: Option<String>) -> ApiResponse<HelloData> {
-    let msg = "Hello, World!";
+    let msg = "# Hello, World!";
     let data = HelloData {
         message: msg.to_string(),
     };

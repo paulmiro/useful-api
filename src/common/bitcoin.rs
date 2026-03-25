@@ -1,4 +1,4 @@
-use crate::endpoints::ApiError;
+use crate::api::ApiError;
 use rocket::State;
 use rocket::tokio::sync::RwLock;
 use serde::Deserialize;

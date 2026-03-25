@@ -1,4 +1,4 @@
-use crate::endpoints::{ApiData, ApiError, ApiResponse, ResponseFormat, UserAgent};
+use crate::api::{ApiData, ApiError, ApiResponse, ResponseFormat, UserAgent};
 use chrono::{Datelike, Local};
 use rocket::State;
 use rocket::tokio::sync::RwLock;
@@ -7,13 +7,14 @@ use rocket_okapi::okapi::schemars::JsonSchema;
 use rocket_okapi::openapi;
 use scraper::{Html, Selector};
 use serde::Serialize;
-use std::collections::HashSet;
+use std::collections::BTreeMap;
 use std::time::{Duration, Instant};
 
 #[derive(Serialize, Clone, JsonSchema, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct Product {
     pub name: String,
     pub link: Option<String>,
+    pub availability: Option<String>,
 }
 
 #[derive(Serialize, Clone, JsonSchema)]
@@ -21,7 +22,6 @@ pub struct AldiTowelData {
     pub sells_towels: bool,
     pub will_sell_towels: bool,
     pub message: String,
-    pub availability: Vec<String>,
     pub products: Vec<Product>,
 }
 
@@ -112,8 +112,7 @@ async fn get_aldi_towel_data() -> Result<AldiTowelData, ApiError> {
         }
     }
 
-    let mut raw_availability = HashSet::new();
-    let mut product_set = HashSet::new();
+    let mut product_map = BTreeMap::new();
     let mut has_products = false;
 
     // Selectors for Aldi's typical structure
@@ -188,22 +187,31 @@ async fn get_aldi_towel_data() -> Result<AldiTowelData, ApiError> {
                     }
                 }
 
-                product_set.insert(Product {
-                    name: product_name,
-                    link: product_link,
-                });
+                let availability = tile
+                    .select(&availability_selector)
+                    .next()
+                    .map(|avail_element| {
+                        avail_element
+                            .text()
+                            .collect::<Vec<_>>()
+                            .join(" ")
+                            .trim()
+                            .to_string()
+                    })
+                    .filter(|avail_text| !avail_text.is_empty());
 
-                if let Some(avail_element) = tile.select(&availability_selector).next() {
-                    let avail_text = avail_element
-                        .text()
-                        .collect::<Vec<_>>()
-                        .join(" ")
-                        .trim()
-                        .to_string();
-                    if !avail_text.is_empty() {
-                        raw_availability.insert(avail_text);
-                    }
-                }
+                product_map
+                    .entry((product_name.clone(), product_link.clone()))
+                    .and_modify(|product: &mut Product| {
+                        if product.availability.is_none() {
+                            product.availability = availability.clone();
+                        }
+                    })
+                    .or_insert(Product {
+                        name: product_name,
+                        link: product_link,
+                        availability,
+                    });
             }
         }
 
@@ -232,111 +240,89 @@ async fn get_aldi_towel_data() -> Result<AldiTowelData, ApiError> {
                             .unwrap_or(40);
                         let name = sub[..end_idx].trim().trim_end_matches([',', '.']).trim();
                         if name.len() > 5 && name.len() < 100 {
-                            product_set.insert(Product {
-                                name: name.to_string(),
-                                link: None,
-                            });
+                            product_map
+                                .entry((name.to_string(), None))
+                                .or_insert(Product {
+                                    name: name.to_string(),
+                                    link: None,
+                                    availability: None,
+                                });
                             has_products = true;
                         }
                         search_pos = absolute_start + end_idx.max(1);
                     }
                 }
             }
-
-            for prefix in ["Verfügbar ab ", "ab "] {
-                let mut search_pos = 0;
-                while let Some(start_idx) = body[search_pos..].find(prefix) {
-                    let absolute_start = search_pos + start_idx;
-                    let sub = &body[absolute_start..];
-                    let end_idx = sub
-                        .find(|c: char| !c.is_alphanumeric() && c != '.' && c != ' ' && c != ',')
-                        .unwrap_or(30);
-                    let info = sub[..end_idx].trim();
-                    if info.len() >= 5 && info.contains('.') {
-                        raw_availability.insert(info.to_string());
-                    }
-                    search_pos = absolute_start + end_idx.max(1);
-                }
-            }
         }
     }
 
-    // Advanced deduplication and cleaning
-    let mut final_availability = Vec::new();
-    let mut availability_vec: Vec<String> = raw_availability.into_iter().collect();
-    availability_vec.sort_by_key(|b| std::cmp::Reverse(b.len()));
-
-    for item in availability_vec {
-        if !final_availability
-            .iter()
-            .any(|existing: &String| existing.contains(&item) || item.contains(existing))
-        {
-            final_availability.push(item);
-        }
-    }
-    final_availability.sort();
-
-    let mut products: Vec<Product> = product_set.into_iter().collect();
-    products.sort();
+    let products: Vec<Product> = product_map.into_values().collect();
 
     // Logic for now vs future
     let mut sells_towels = false;
     let mut will_sell_towels = false;
 
     if has_products {
-        if final_availability.is_empty() {
-            sells_towels = true;
-        } else {
-            for avail in &final_availability {
-                if is_future_date(avail) {
-                    will_sell_towels = true;
-                } else {
-                    sells_towels = true;
-                }
+        for product in &products {
+            match &product.availability {
+                Some(avail) if is_future_date(avail) => will_sell_towels = true,
+                _ => sells_towels = true,
             }
         }
     }
 
     let message = if sells_towels || will_sell_towels {
-        let availability_str = if !final_availability.is_empty() {
-            format!(" ({})", final_availability.join(", "))
-        } else {
-            "".to_string()
-        };
-
         let product_str = if !products.is_empty() {
             let product_lines: Vec<String> = products
                 .iter()
-                .map(|p| match &p.link {
-                    Some(link) => format!("- [{}]({})", p.name, link),
-                    None => format!("- {}", p.name),
+                .map(|p| {
+                    let product_label = match &p.link {
+                        Some(link) => format!("[{}]({})", p.name, link),
+                        None => p.name.clone(),
+                    };
+
+                    match &p.availability {
+                        Some(availability) => format!("- {} ({})", product_label, availability),
+                        None => format!("- {}", product_label),
+                    }
                 })
                 .collect();
-            format!("\n\nProdukte:\n{}", product_lines.join("\n"))
+            format!(
+                r#"## Produkte
+
+{}"#,
+                product_lines.join("\n")
+            )
         } else {
             "".to_string()
         };
 
         if sells_towels {
             format!(
-                "Ja, Aldi Süd hat aktuell Handtücher im Angebot!{}{}",
-                availability_str, product_str
+                r#"# Aldi-Handtücher
+
+**Ja**, Aldi Süd hat aktuell Handtücher im Angebot.
+{product_str}"#,
             )
         } else {
             format!(
-                "Ja, Aldi Süd hat bald Handtücher im Angebot!{}{}",
-                availability_str, product_str
+                r#"# Aldi-Handtücher
+
+**Ja**, Aldi Süd hat bald Handtücher im Angebot.
+{product_str}"#,
             )
         }
     } else {
-        "Nein, Aldi Süd hat aktuell keine Handtücher im Angebot.".to_string()
+        r#"# Aldi-Handtücher
+
+**Nein**, Aldi Süd hat aktuell keine Handtücher im Angebot."#
+            .to_string()
     };
 
     Ok(AldiTowelData {
         sells_towels,
         will_sell_towels,
         message,
-        availability: final_availability,
         products,
     })
 }
