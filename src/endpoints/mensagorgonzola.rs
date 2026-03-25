@@ -24,6 +24,11 @@ async fn fetch_gorgonzola() -> Result<GorgonzolaData, ApiError> {
     } else {
         now.date_naive()
     };
+    let day_label = if date > now.date_naive() {
+        "morgen"
+    } else {
+        "heute"
+    };
 
     let url = format!(
         "https://openmensa.alexanderwallau.de/CAMPO/{}",
@@ -45,7 +50,8 @@ async fn fetch_gorgonzola() -> Result<GorgonzolaData, ApiError> {
 
     let has_gorgonzola = body.to_lowercase().contains("gorgonzola");
     let message = format!(
-        "Die Mensa hat heute {}Gorgonzola im Angebot.",
+        "Die Mensa hat {} {}Gorgonzola im Angebot.",
+        day_label,
         if has_gorgonzola { "" } else { "keinen " }
     )
     .replace("  ", " ");
