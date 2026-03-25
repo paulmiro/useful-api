@@ -1,4 +1,4 @@
-use crate::endpoints::{ApiData, ApiError, ApiResponse, ResponseFormat, UserAgent};
+use crate::api::{ApiData, ApiError, ApiResponse, ResponseFormat, UserAgent};
 use rocket::State;
 use rocket::serde::{Deserialize, Serialize};
 use rocket::tokio::sync::RwLock;
@@ -121,7 +121,7 @@ async fn fetch_shark_data() -> Result<SharkData, ApiError> {
             } else {
                 qty.to_string()
             };
-            format!("{} {}{}", count, name, suffix)
+            format!("**{count}** {name}{suffix}")
         };
 
         let beeghaj_str = format_part(beeghaj_qty, "beeghaj");
@@ -129,12 +129,16 @@ async fn fetch_shark_data() -> Result<SharkData, ApiError> {
         let whale_str = format_part(whale_qty, "whale");
 
         let mut msg = format!(
-            "Der IKEA Godorf hat aktuell {}, {} und {} auf Lager",
-            beeghaj_str, smolhaj_str, whale_str
+            r#"## Sharkbestand im IKEA Godorf:
+
+- {beeghaj_str}
+- {smolhaj_str}
+- {whale_str}
+"#
         );
 
         if beeghaj_qty > 0 && smolhaj_qty > 0 && whale_qty > 0 {
-            msg.push_str(" :D");
+            msg.push_str("\n> Alles da :D");
         }
         msg
     };

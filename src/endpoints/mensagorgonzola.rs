@@ -1,4 +1,4 @@
-use crate::endpoints::{ApiData, ApiError, ApiResponse, ResponseFormat, UserAgent};
+use crate::api::{ApiData, ApiError, ApiResponse, ResponseFormat, UserAgent};
 use chrono::{Duration, Local, Timelike};
 use rocket_okapi::okapi::schemars;
 use rocket_okapi::okapi::schemars::JsonSchema;
@@ -39,20 +39,19 @@ async fn fetch_gorgonzola() -> Result<GorgonzolaData, ApiError> {
         .get(&url)
         .send()
         .await
-        .map_err(|e| ApiError {
-            message: format!("Failed to fetch mensa menu: {}", e),
+        .map_err(|error| ApiError {
+            message: format!("Failed to fetch mensa menu: {error}"),
         })?
         .text()
         .await
-        .map_err(|e| ApiError {
-            message: format!("Failed to read mensa menu: {}", e),
+        .map_err(|error| ApiError {
+            message: format!("Failed to read mensa menu: {error}"),
         })?;
 
     let has_gorgonzola = body.to_lowercase().contains("gorgonzola");
     let message = format!(
-        "Die Mensa hat {} {}Gorgonzola im Angebot.",
-        day_label,
-        if has_gorgonzola { "" } else { "keinen " }
+        "Die Mensa hat {day_label} {}Gorgonzola im Angebot.",
+        if has_gorgonzola { "" } else { "**keinen** " }
     )
     .replace("  ", " ");
 
