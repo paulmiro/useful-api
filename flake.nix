@@ -18,7 +18,6 @@
       systems = [
         "x86_64-linux"
         "aarch64-linux"
-        # "x86_64-darwin" is not supported on purpose
         "aarch64-darwin"
       ];
       perSystem =
@@ -53,17 +52,6 @@
             default = craneLib.devShell {
               packages =
                 (with pkgs; [
-                ])
-                ++ commonArgs.nativeBuildInputs
-                ++ commonArgs.buildInputs;
-              inherit (commonArgs) PKG_CONFIG_PATH;
-              RUST_SRC_PATH = "${pkgs.rustPlatform.rustLibSrc}";
-            };
-
-            gemini = craneLib.devShell {
-              packages =
-                (with pkgs; [
-                  gemini-cli
                 ])
                 ++ commonArgs.nativeBuildInputs
                 ++ commonArgs.buildInputs;
