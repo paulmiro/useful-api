@@ -35,4 +35,4 @@ jobs:
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
 
       - name: Build useful-api for ${{ matrix.system }}
-        run: nix build .#useful-api --extra-experimental-features 'nix-command flakes' --system ${{ matrix.system }}
+        run: nix build .#default --extra-experimental-features 'nix-command flakes' --system ${{ matrix.system }}
