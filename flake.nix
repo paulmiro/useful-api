@@ -15,6 +15,11 @@
   outputs =
     { flake-parts, crane, ... }@inputs:
     flake-parts.lib.mkFlake { inherit inputs; } {
+      imports = [
+        ./module.nix
+        ./vm-test.nix
+      ];
+
       systems = [
         "x86_64-linux"
         "aarch64-linux"
@@ -44,6 +49,7 @@
             commonArgs
             // {
               inherit cargoArtifacts;
+              meta.mainProgram = "useful-api";
             }
           );
         in
@@ -61,11 +67,6 @@
           };
 
           packages.default = useful-api;
-          packages.useful-api = useful-api;
         };
-
-      flake = {
-        nixosModules.useful-api-auto-update = import ./module.nix;
-      };
     };
 }
