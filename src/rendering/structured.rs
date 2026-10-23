@@ -8,3 +8,7 @@ pub fn xml<T: Serialize>(data: &T) -> Result<String, String> {
     let body = quick_xml::se::to_string_with_root("response", data).map_err(|e| e.to_string())?;
     Ok(format!("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n{body}\n"))
 }
+
+pub fn toml<T: Serialize>(data: &T) -> Result<String, String> {
+    toml::to_string(data).map_err(|e| e.to_string())
+}

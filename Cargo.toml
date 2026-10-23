@@ -14,3 +14,4 @@ scraper = "0.26.0"
 pulldown-cmark = "0.13"
 serde_yaml_ng = "0.10.0"
 quick-xml = { version = "0.42", features = ["serialize"] }
+toml = "1.1.8"
