@@ -54,6 +54,7 @@ pub enum ResponseFormat {
     Yaml,
     Xml,
     Toml,
+    Ini,
 }
 
 impl ResponseFormat {
@@ -68,6 +69,7 @@ impl ResponseFormat {
                 "yaml" | "yml" => return ResponseFormat::Yaml,
                 "xml" => return ResponseFormat::Xml,
                 "toml" => return ResponseFormat::Toml,
+                "ini" => return ResponseFormat::Ini,
                 _ => {}
             }
         }
@@ -157,6 +159,14 @@ impl<'r, T: ApiData> OpenApiResponder<'r, 'static> for ApiResponse<T> {
         );
 
         content.insert(
+            "text/ini".to_string(),
+            MediaType {
+                schema: Some(plain_schema.clone()),
+                ..MediaType::default()
+            },
+        );
+
+        content.insert(
             "text/html".to_string(),
             MediaType {
                 schema: Some(plain_schema),
@@ -227,6 +237,13 @@ impl<'r, T: ApiData> Responder<'r, 'static> for ApiResponse<T> {
                 ResponseFormat::Toml => match structured::toml(&data) {
                     Ok(text) => RocketResponse::build()
                         .header(ContentType::new("application", "toml"))
+                        .sized_body(text.len(), Cursor::new(text))
+                        .ok(),
+                    Err(message) => Json(ApiError { message }).respond_to(req),
+                },
+                ResponseFormat::Ini => match structured::ini(&data) {
+                    Ok(text) => RocketResponse::build()
+                        .header(ContentType::new("text", "ini"))
                         .sized_body(text.len(), Cursor::new(text))
                         .ok(),
                     Err(message) => Json(ApiError { message }).respond_to(req),
