@@ -56,6 +56,7 @@ pub enum ResponseFormat {
     Toml,
     Ini,
     Env,
+    Man,
 }
 
 impl ResponseFormat {
@@ -72,6 +73,7 @@ impl ResponseFormat {
                 "toml" => return ResponseFormat::Toml,
                 "ini" => return ResponseFormat::Ini,
                 "env" | "dotenv" => return ResponseFormat::Env,
+                "man" | "manpage" => return ResponseFormat::Man,
                 _ => {}
             }
         }
@@ -169,6 +171,14 @@ impl<'r, T: ApiData> OpenApiResponder<'r, 'static> for ApiResponse<T> {
         );
 
         content.insert(
+            "text/troff".to_string(),
+            MediaType {
+                schema: Some(plain_schema.clone()),
+                ..MediaType::default()
+            },
+        );
+
+        content.insert(
             "text/html".to_string(),
             MediaType {
                 schema: Some(plain_schema),
@@ -257,6 +267,13 @@ impl<'r, T: ApiData> Responder<'r, 'static> for ApiResponse<T> {
                         .ok(),
                     Err(message) => Json(ApiError { message }).respond_to(req),
                 },
+                ResponseFormat::Man => {
+                    let text = mandown::convert(data.message(), "useful-api", 1);
+                    RocketResponse::build()
+                        .header(ContentType::new("text", "troff"))
+                        .sized_body(text.len(), Cursor::new(text))
+                        .ok()
+                }
             },
             ApiResponse::Error(error) => Json(error).respond_to(req),
         }
