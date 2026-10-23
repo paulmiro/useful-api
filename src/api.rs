@@ -1,4 +1,4 @@
-use crate::rendering::{html, markdown, plaintext, shell};
+use crate::rendering::{html, markdown, plaintext, shell, structured};
 use rocket::http::ContentType;
 use rocket::request::Request;
 use rocket::response::{self, Responder, Response as RocketResponse};
@@ -51,6 +51,7 @@ pub enum ResponseFormat {
     Plain,
     Html,
     Shell,
+    Yaml,
 }
 
 impl ResponseFormat {
@@ -62,6 +63,7 @@ impl ResponseFormat {
                 "html" => return ResponseFormat::Html,
                 "shell" | "sh" => return ResponseFormat::Shell,
                 "plaintext" | "plain" | "text" => return ResponseFormat::Plain,
+                "yaml" | "yml" => return ResponseFormat::Yaml,
                 _ => {}
             }
         }
@@ -105,7 +107,7 @@ impl<'r, T: ApiData> OpenApiResponder<'r, 'static> for ApiResponse<T> {
         content.insert(
             "application/json".to_string(),
             MediaType {
-                schema: Some(json_schema),
+                schema: Some(json_schema.clone()),
                 ..MediaType::default()
             },
         );
@@ -122,6 +124,14 @@ impl<'r, T: ApiData> OpenApiResponder<'r, 'static> for ApiResponse<T> {
             "text/markdown".to_string(),
             MediaType {
                 schema: Some(plain_schema.clone()),
+                ..MediaType::default()
+            },
+        );
+
+        content.insert(
+            "application/yaml".to_string(),
+            MediaType {
+                schema: Some(json_schema),
                 ..MediaType::default()
             },
         );
@@ -180,6 +190,13 @@ impl<'r, T: ApiData> Responder<'r, 'static> for ApiResponse<T> {
                         .sized_body(text.len(), Cursor::new(text))
                         .ok()
                 }
+                ResponseFormat::Yaml => match structured::yaml(&data) {
+                    Ok(text) => RocketResponse::build()
+                        .header(ContentType::new("application", "yaml"))
+                        .sized_body(text.len(), Cursor::new(text))
+                        .ok(),
+                    Err(message) => Json(ApiError { message }).respond_to(req),
+                },
             },
             ApiResponse::Error(error) => Json(error).respond_to(req),
         }

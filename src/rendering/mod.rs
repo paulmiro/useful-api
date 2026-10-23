@@ -2,6 +2,7 @@ pub mod html;
 pub mod markdown;
 pub mod plaintext;
 pub mod shell;
+pub mod structured;
 
 use pulldown_cmark::Options;
 
