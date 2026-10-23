@@ -55,6 +55,7 @@ pub enum ResponseFormat {
     Xml,
     Toml,
     Ini,
+    Env,
 }
 
 impl ResponseFormat {
@@ -70,6 +71,7 @@ impl ResponseFormat {
                 "xml" => return ResponseFormat::Xml,
                 "toml" => return ResponseFormat::Toml,
                 "ini" => return ResponseFormat::Ini,
+                "env" | "dotenv" => return ResponseFormat::Env,
                 _ => {}
             }
         }
@@ -244,6 +246,13 @@ impl<'r, T: ApiData> Responder<'r, 'static> for ApiResponse<T> {
                 ResponseFormat::Ini => match structured::ini(&data) {
                     Ok(text) => RocketResponse::build()
                         .header(ContentType::new("text", "ini"))
+                        .sized_body(text.len(), Cursor::new(text))
+                        .ok(),
+                    Err(message) => Json(ApiError { message }).respond_to(req),
+                },
+                ResponseFormat::Env => match structured::env(&data) {
+                    Ok(text) => RocketResponse::build()
+                        .header(ContentType::Plain)
                         .sized_body(text.len(), Cursor::new(text))
                         .ok(),
                     Err(message) => Json(ApiError { message }).respond_to(req),

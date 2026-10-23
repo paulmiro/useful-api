@@ -49,3 +49,13 @@ pub fn ini<T: Serialize>(data: &T) -> Result<String, String> {
         .map(|text| text.replace("\r\n", "\n"))
         .map_err(|e| e.to_string())
 }
+
+pub fn env<T: Serialize>(data: &T) -> Result<String, String> {
+    let vars: BTreeMap<String, String> = flatten(data, "_")?
+        .into_iter()
+        .map(|(k, v)| (k.to_uppercase(), v))
+        .collect();
+    serde_envfile::to_string(&vars)
+        .map(|text| format!("{}\n", text.trim_end()))
+        .map_err(|e| e.to_string())
+}
